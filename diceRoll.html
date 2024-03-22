@@ -261,8 +261,11 @@ function rollDice() {
         return roll;
     }, { precision: 'single' });
 
-    // Simulate rolling a single die in parallel
-    // Note: This is for demonstration purposes only. In practice, you might not see a performance benefit from this.
+    // Explicitly set the output dimensions
+    // Since we're simulating a single roll, the output dimensions are [1]
+    rollDiceKernel.setOutput([1]);
+
+    // Now, when you call the kernel function, it should work without errors
     var roll = rollDiceKernel(dieNumber);
     console.log(roll); // This will log a single random number
 
