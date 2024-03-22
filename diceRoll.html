@@ -228,6 +228,7 @@ function simulateDecisionTree(maxDiceSize, maxDepth, depth = 0) {
 
     if (decision === 'roll') {
         // Use the existing rollDice function
+	console.log(`Rolling dice at depth: ${depth}`);
         rollDice();
     } else {
         const diceCount = Math.floor(Math.random() * maxDiceSize) + 1;
