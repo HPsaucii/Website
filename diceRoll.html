@@ -259,10 +259,13 @@ function rollDice() {
     var rollDiceKernel = gpu.createKernel(function(dieNumber) {
         let roll = Math.floor(Math.random() * dieNumber) + 1;
         return roll;
-    }, { output: [1], precision: 'single' });
+    }, { precision: 'single' });
 
-    // Simulate rolling 10 dice in parallel
-    var rolls = rollDiceKernel(dieNumber, { loopMaxIterations: 1 });
+    // Simulate rolling a single die in parallel
+    // Note: This is for demonstration purposes only. In practice, you might not see a performance benefit from this.
+    var roll = rollDiceKernel(dieNumber);
+    console.log(roll); // This will log a single random number
+
     if (firstRoll) {
         firstRoll = false;
     }
