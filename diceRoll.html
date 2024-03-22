@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The dice machine</title>
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<style>
+	@font-face {
+		font-family: 'FiraCode Nerd Font';
+		src: url('fonts/FiraCodeNerdFont-Regular.ttf') format('truetype');
+	}
+	body {
+	    background-color: #1e1e2e;
+	    color: #cdd6f4;
+	    text-align: center; /* Center align text */
+	}
+	.container {
+	    margin: auto; /* Center block-level elements horizontally */
+	    max-width: 600px; /* Optional: Set maximum width for the centered content */
+	    text-align: left; /* Restore left alignment for inner text */
+	}
+	ul {
+	    text-align: center; /* Center align text for list */
+	    padding-left: 0; /* Remove default padding */
+	}
+	.catButton {
+	    background-color: #181825; /* Background color */
+	    color: #cdd6f4; /* Foreground color */
+	    border: none;
+	    padding: 10px 20px;
+	    text-align: center;
+	    text-decoration: none;
+	    display: inline-block;
+	    font-size: 16px;
+	    margin: 4px 2px;
+	    cursor: pointer;
+	    border-radius: 4px;
+	}
+	.number-input-container {
+	    position: relative;
+	    display: inline-block;
+	}
+	.catInput {
+	    background-color: #181825; /* Background color */
+	    color: #cdd6f4; /* Foreground color */
+	    border: none;
+	    padding: 10px;
+	    font-size: 16px;
+	    border-radius: 4px;
+	}
+	/* Hide default increment and decrement buttons */
+	input[type="number"]::-webkit-inner-spin-button,
+	input[type="number"]::-webkit-outer-spin-button {
+	    -webkit-appearance: none;
+	    margin: 0;
+	}
+	
+	input[type="number"] {
+	    -moz-appearance: textfield;
+	}
+	select {
+	    background-color: #181825; /* Background color */
+	    color: #cdd6f4; /* Text color */
+	    /* Additional styling for better appearance */
+	    border: none;
+	    padding: 10px;
+	    font-size: 16px;
+	    width: 200px;
+	}
+	.note-taking {
+	    position: fixed;
+	    right: 0;
+	    top: 70px; /* Adjusted to include top margin */
+	    height: 45%; /* Adjusted height to make room for the separation */
+	    width: 30%;
+	    background-color: #181825;
+	    color: #cdd6f4;
+	    padding: 10px;
+	    overflow: auto;
+	    resize: none;
+	    margin-right: 20px; /* Space on the right side */
+	    text-align: left;
+	}
+	.markdown-output {
+	    position: fixed;
+	    right: 0;
+	    top: 55%; /* Adjusted to create more space between the two sections */
+	    height: 40%; /* Adjusted height to match the input area */
+	    width: 30%;
+	    background-color: #181825;
+	    color: #cdd6f4;
+	    padding: 10px;
+	    overflow: auto;
+	    resize: none;
+	    margin-right: 20px; /* Space on the right side */
+	    text-align: left;
+	    font-size: 16px; /* Adjust the font size here */
+	    margin-top: 0; /* Remove top margin */
+    	padding-top: 10px; /* Remove top padding */
+	}
+	.note-taking::placeholder {
+	 color: #6c7086; /* Change this to your desired color */
+	}
+	.catInput:focus {
+	    outline: 2px solid #cba6f7; /* Change the color of the outline when focused */
+	}
+	.text-box {
+	    background-color: #181825; /* Background color */
+	    color: #cdd6f4; /* Foreground color */
+	    border: none;
+	    font-size: 16px;
+	    border-radius: 4px;
+	    margin-left: 10px; /* Add some space between the list item and the text box */
+	    bottom: 2px;
+	}
+	.text-box:focus {
+	    outline: 2px solid #cba6f7; /* Change the color of the outline when focused */
+	}
+	/* Adjusted styles for the list item and text-box */
+	.recent-rolls li {
+	    display: flex;
+	    justify-content: space-between;
+	    align-items: center;
+	    padding: 2.5px;
+	    border-bottom: none; /* Removed the border */
+	    max-width: 27%; /*calc(100% - 30% - 20px - 50px); /* Adjusted to account for the note-taking area and additional space */
+	    margin-left: 40%;
+	}
+	.text-box {
+	    flex-grow: 1;
+	    margin-left: 10px;
+	}
+	.hidden {
+	    display: none;
+	}
+	#decisionDiceNotification {
+	    position: fixed;
+	    bottom: 20px; /* Adjust the distance from the bottom of the screen as needed */
+	    left: 50%;
+	    transform: translateX(-50%); /* Center the notification horizontally */
+	    color: #cdd6f4; /* Adjust the color as needed */
+	    font-size: 16px; /* Adjust the font size as needed */
+	    padding: 10px;
+	    background-color: #585b70; /* Adjust the background color as needed */
+	    border-radius: 4px;
+	    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Optional: Add a shadow for a 3D effect */
+	}
+	.disabled {
+	    pointer-events: none;
+	    opacity: 0.5;
+	}
+	</style>
+</head>
+<body>
+	<pre id="markdownOutput" class="markdown-output"></pre>
+	<div id="decisionDiceNotification" class="hidden">Decision dice landed on: <span id="decisionDiceResult"></span></div>
+	<label for="maxDepthInput">Max Depth:</label>
+	<input class="catInput" type="number" id="maxDepthInput" min="1" value="5">
+	<button class="catButton" id="startSimulation" onclick="startSimulation()">Start Simulation</button>
+	<label for="toggleDecisionDice">Enable Decision Dice Roll:</label>
+	<input type="checkbox" id="toggleDecisionDice" onclick="toggleDecisionDiceFeatures()">
+	<select id="decisionDice" class="catInput hidden">
+	    <option value="d2">d2</option>
+	    <option value="d3">d3</option>
+	    <option value="d4">d4</option>
+	    <option value="d6">d6</option>
+	    <option value="d12">d12</option>
+	    <option value="d20">d20</option>
+	    <option value="d100">d100</option>
+	    <option value="custom">Custom...</option>
+	</select>
+	<button class="catButton hidden multipleRollsButton" id="rollDecisionDice" onclick="rollDecisionDice()">Roll Decision Dice</button>
+    <select id="dice">
+        <option value="d2">d2</option>
+        <option value="d3">d3</option>
+        <option value="d4">d4</option>
+        <option value="d6">d6</option>
+        <option value="d12">d12</option>
+        <option value="d20">d20</option>
+        <option value="d100">d100</option>
+        <option value="custom">Custom...</option>
+    </select>
+    <button class="catButton" type="button" onclick="rollDice()">Roll it baby!</button>
+   	<input class="catInput" type="number" id="rollAmnt" name="amnt" value="1" onkeypress="handleKeyPress(event)">	
+    <button class="catButton" type="button" onclick="multipleRolls()">Multiple Rolls!</button>
+    <button class="catButton" type="button" onclick="clearRolls()">Clear</button>
+    <ul id="recentRolls" class="recent-rolls"></ul>
+    <textarea id="editableTextarea" class="note-taking catInput hidden" roles="10" placeholder="Take notes here..."></textarea>
+</body>
+<script>
+var total = 0;
+var list = document.getElementById('recentRolls');
+var rollNum = 1;
+var firstRoll = true;
+var colorMap = {}; // Object to store colors for each number
+
+function handleKeyPress(event) {
+    if (event.keyCode === 13) {
+        multipleRolls()
+    }
+}
+
+// Helper function to pad a number with leading zeros
+function padNumber(number, maxDigits) {
+    return number.toString().padStart(maxDigits, '0');
+}
+document.getElementById('dice').addEventListener('change', function() {
+    const selectedValue = this.value;
+    let maxDiceSize;
+
+    if (selectedValue === 'custom') {
+        // Handle custom dice size. You might want to prompt the user for a value.
+        // For this example, we'll use a default maximum size.
+        maxDiceSize = 20; // Default maximum size
+    } else {
+        // Extract the number of sides from the selected option
+        maxDiceSize = parseInt(selectedValue.substring(1));
+    }
+
+    // Now you can use maxDiceSize in your simulation logic
+    console.log('Max Dice Size:', maxDiceSize);
+});
+function simulateDecisionTree(maxDiceSize, maxDepth, depth = 0) {
+    if (depth > maxDepth) {
+        return;
+    }
+
+    const decision = Math.random() < 0.5 ? 'roll' : 'decide';
+
+    if (decision === 'roll') {
+        // Use the existing rollDice function
+        rollDice();
+    } else {
+        const diceCount = Math.floor(Math.random() * maxDiceSize) + 1;
+
+        for (let i = 0; i < diceCount; i++) {
+            simulateDecisionTree(maxDiceSize, maxDepth, depth + 1);
+        }
+    }
+}
+
+function startSimulation() {
+    const maxDiceSize = document.getElementById('dice').value.substring(1);
+    const maxDepthInput = document.getElementById('maxDepthInput');
+    const maxDepth = parseInt(maxDepthInput.value);
+
+    if (isNaN(maxDepth) || maxDepth < 1) {
+        alert('Please enter a valid maximum depth.');
+        return;
+    }
+
+    simulateDecisionTree(maxDiceSize, maxDepth);
+}
+
+function rollDice() {
+    var die = document.getElementById("dice").value;
+    var dieNumber = parseInt(die.substring(1));
+    let roll = Math.floor(Math.random() * (dieNumber - 1 + 1) + 1);
+    if (firstRoll) {
+        firstRoll = false;
+    }
+    var entry = document.createElement('li');
+    
+    // Check if the roll has been generated before
+    if (colorMap[roll]) {
+        // If it has, use the same color
+        entry.style.color = colorMap[roll];
+    } else {
+        // If it hasn't, generate a new color and store it
+        var color = generateWeightedColor(roll, dieNumber);
+        colorMap[roll] = color;
+        entry.style.color = color;
+    }
+    
+    // Calculate the maximum number of digits based on the dice value
+    var maxDigits = dieNumber.toString().length;
+    // Pad the roll number with leading zeros
+    var paddedRoll = padNumber(roll, maxDigits);
+    
+    entry.appendChild(document.createTextNode("roll " + rollNum + ": " + paddedRoll));
+    
+    // Create a text box for each list item
+    var textBox = document.createElement('input');
+    textBox.type = 'text';
+    textBox.className = 'text-box';
+    textBox.placeholder = 'Add note...';
+    entry.appendChild(textBox);
+    
+    list.appendChild(entry);
+    rollNum++;
+    if (list.children.length >= 50) {
+        while (list.children.length > 50) {
+            list.removeChild(list.children[0]);
+        }
+    }
+}
+
+function generateWeightedColor(number, maxValue) {
+    // If the maximum value is exactly 1, always return the brightest green color
+    if (maxValue === 1) {
+        return '#00FF00'; // Brightest green color
+    }
+
+    // For any other case, generate a color based on the roll number
+    var adjustedNumber = number - 1; // Adjust the number to ensure a 1 is always red
+    var hue = (adjustedNumber / (maxValue - 1)) * 120; // Scale the adjusted number to a hue value from 0 to 120 degrees
+    var color = 'hsl(' + hue + ', 100%, 50%)'; // Generate a color with the hue
+    return color;
+}
+
+
+function multipleRolls() {
+    var rollCount = document.getElementById("rollAmnt").value;
+    for (let i = 1; i <= rollCount; i++) {
+        rollDice()
+    }
+}
+
+function rollDecisionDice() {
+    var decisionDiceSelect = document.getElementById("decisionDice");
+    var decisionDie = decisionDiceSelect.value;
+    var decisionDieNumber = parseInt(decisionDie.substring(1));
+    var decisionRoll = Math.floor(Math.random() * (decisionDieNumber - 1 + 1) + 1);
+
+    // Display the result of the decision dice roll
+    var decisionDiceResult = document.getElementById("decisionDiceResult");
+    decisionDiceResult.textContent = decisionRoll;
+    var decisionDiceNotification = document.getElementById("decisionDiceNotification");
+    decisionDiceNotification.classList.remove("hidden"); // Show the notification
+
+    // Use the result of the decision dice to determine the number of rolls
+    var rollCount = decisionRoll;
+
+    for (let i = 1; i <= rollCount; i++) {
+        rollDice(); // Assuming rollDice() is a function that handles the dice roll animation
+    }
+
+    // Hide the notification after a delay, considering the duration of the dice roll animation
+    setTimeout(function() {
+        decisionDiceNotification.classList.add("hidden");
+    }, 3000); // Adjust the delay as needed
+
+    // If a custom decision dice size was entered, add it to the decision dice selection dropdown
+    if (customDecisionDieSize) {
+        var customOptionExists = Array.from(decisionDiceSelect.options).some(option => option.value === "d" + customDecisionDieSize);
+        if (!customOptionExists) {
+            var newOption = document.createElement("option");
+            newOption.value = "d" + customDecisionDieSize;
+            newOption.text = "d" + customDecisionDieSize;
+            decisionDiceSelect.add(newOption);
+        }
+
+        // Sort the options of the select element
+        var options = Array.from(decisionDiceSelect.options);
+        options.sort(function(a, b) {
+            return parseInt(a.value.substring(1)) - parseInt(b.value.substring(1));
+        });
+        decisionDiceSelect.innerHTML = ''; // Clear the select element
+        options.forEach(function(option) {
+            decisionDiceSelect.add(option); // Re-add the sorted options
+        });
+    }
+
+    // Clear the custom decision dice size input field
+    document.getElementById("customDecisionDie").value = "";
+}
+
+function clearRolls() {
+    list.innerHTML = "";
+    colorMap = {}; // Reset the color map when clearing rolls
+}
+
+// Add an event listener to the dice selection dropdown
+document.getElementById("dice").addEventListener("change", function() {
+    colorMap = {}; // Clear the color map when the dice is changed
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const editableTextarea = document.getElementById('editableTextarea');
+    const markdownPre = document.getElementById('markdownOutput');
+    const placeholderText = "Your markdown will appear here...";
+
+    // Function to convert markdown to HTML and update the pre tag
+    function updateMarkdownPre() {
+        if (editableTextarea.value.trim() === '') {
+            markdownPre.textContent = placeholderText;
+            markdownPre.style.color = '#434658';
+            markdownPre.style.paddingTop = '15px';
+            markdownPre.style.height = 'calc(39% - 1px)';
+        } else {
+            const html = marked.parse(editableTextarea.value);
+            markdownPre.innerHTML = html;
+            markdownPre.style.color = '#cdd6f4';
+            markdownPre.style.paddingTop = '0';
+            markdownPre.style.height = '40%';
+        }
+    }
+
+    // Listen for input events on the textarea
+    editableTextarea.addEventListener('input', updateMarkdownPre);
+
+    // Initial update to ensure the pre tag is populated
+    updateMarkdownPre();
+
+    // Ensure the markdown output area is expanded by default
+    markdownPre.style.height = '90%';
+    markdownPre.style.top = '70px';
+
+    // Explicitly set the initial state of the note-taking and markdown output areas
+    const noteTakingDiv = document.querySelector('.note-taking');
+    noteTakingDiv.style.display = 'none'; // Hide the note-taking area initially
+
+    // Automatically focus the text area
+    editableTextarea.focus();
+
+	editableTextarea.addEventListener('blur', function() {
+        noteTakingDiv.style.display = 'none';
+        markdownPre.style.height = '90%'; // Expand the markdown output area
+        markdownPre.style.top = '70px'; // Adjust the top position
+    });
+});
+
+// Add an event listener to the markdown box to toggle the visibility of the note-taking area
+document.getElementById('markdownOutput').addEventListener('click', function() {
+    const noteTakingDiv = document.querySelector('.note-taking');
+    const markdownOutputDiv = document.getElementById('markdownOutput');
+    const isNoteTakingVisible = noteTakingDiv.style.display !== 'none';
+
+	if (!isNoteTakingVisible) {
+	    if (isNoteTakingVisible) {
+	        noteTakingDiv.style.display = 'none';
+	        markdownOutputDiv.style.height = '90%'; // Expand to full height
+	        markdownOutputDiv.style.top = '70px'; // Adjust the top position
+	    } else {
+	        noteTakingDiv.style.display = 'block';
+	        markdownOutputDiv.style.height = '40%'; // Reset to original height
+	        markdownOutputDiv.style.top = '55%'; // Reset to original top position
+	        editableTextarea.focus();
+	    }
+	}
+});
+
+function toggleDecisionDiceFeatures() {
+    var decisionDiceSelect = document.getElementById("decisionDice");
+    var rollDecisionDiceButton = document.getElementById("rollDecisionDice");
+    var isChecked = document.getElementById("toggleDecisionDice").checked;
+
+    if (isChecked) {
+        decisionDiceSelect.classList.remove("hidden");
+        rollDecisionDiceButton.classList.remove("hidden"); // Make the button visible
+    } else {
+        decisionDiceSelect.classList.add("hidden");
+        rollDecisionDiceButton.classList.add("hidden"); // Hide the button
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    toggleDecisionDiceFeatures(); // Set initial state
+});
+
+function addCustomDieOption(selectElement, customDieSize) {
+    // Check for duplicates
+    var duplicateOption = Array.from(selectElement.options).find(option => option.value === "d" + customDieSize);
+    if (duplicateOption) {
+        // If a duplicate is found, select it
+        selectElement.value = duplicateOption.value;
+    } else {
+        // Create new option
+        var newOption = document.createElement("option");
+        newOption.value = "d" + customDieSize;
+        newOption.text = "d" + customDieSize;
+
+        // Sort the options by their numerical value, including the "Custom..." option
+        var options = Array.from(selectElement.options).sort(function(a, b) {
+            // Treat "Custom..." as having the highest value
+            if (a.value === "custom") return 1;
+            if (b.value === "custom") return -1;
+            return parseInt(a.value.substring(1)) - parseInt(b.value.substring(1));
+        });
+
+        // Find the correct index to insert the new option based on its numerical value
+        var insertIndex = options.findIndex(option => option.value === "custom" || parseInt(option.value.substring(1)) > customDieSize);
+
+        // Insert the new option at the correct index
+        if (insertIndex === -1) {
+            // If no option has a value greater than the new one, append it to the end
+            selectElement.appendChild(newOption);
+        } else {
+            // If "Custom..." is found, insert the new option right before it
+            if (options[insertIndex].value === "custom") {
+                selectElement.insertBefore(newOption, selectElement.options[insertIndex]);
+            } else {
+                // Otherwise, insert the new option at the correct index
+                selectElement.insertBefore(newOption, selectElement.options[insertIndex]);
+            }
+        }
+
+        // Select the newly added option
+        selectElement.value = "d" + customDieSize;
+    }
+}
+
+document.getElementById("dice").addEventListener("change", function() {
+    if (this.value === "custom") {
+        var customDieSize = prompt("Enter custom die size:");
+        if (customDieSize) {
+            addCustomDieOption(this, customDieSize);
+        } else {
+            // If the user cancels the prompt, revert to the previous selection
+            this.value = this.options[this.selectedIndex - 1].value;
+        }
+    }
+});
+
+document.getElementById("decisionDice").addEventListener("change", function() {
+    if (this.value === "custom") {
+        var customDecisionDieSize = prompt("Enter custom decision die size:");
+        if (customDecisionDieSize) {
+            addCustomDieOption(this, customDecisionDieSize);
+        } else {
+            // If the user cancels the prompt, revert to the previous selection
+            this.value = this.options[this.selectedIndex - 1].value;
+        }
+    }
+});
+</script>
+</html>
