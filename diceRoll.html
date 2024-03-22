@@ -3,6 +3,7 @@
 <head>
 	<title>The dice machine</title>
 	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gpu.js@latest/dist/gpu-browser.min.js"></script>
 	<style>
 	@font-face {
 		font-family: 'FiraCode Nerd Font';
@@ -254,7 +255,14 @@ function startSimulation() {
 function rollDice() {
     var die = document.getElementById("dice").value;
     var dieNumber = parseInt(die.substring(1));
-    let roll = Math.floor(Math.random() * (dieNumber - 1 + 1) + 1);
+    var gpu = new GPU();
+    var rollDiceKernel = gpu.createKernel(function(dieNumber) {
+        let roll = Math.floor(Math.random() * dieNumber) + 1;
+        return roll;
+    }, { output: [1], precision: 'single' });
+
+    // Simulate rolling 10 dice in parallel
+    var rolls = rollDiceKernel(dieNumber, { loopMaxIterations: 1 });
     if (firstRoll) {
         firstRoll = false;
     }
