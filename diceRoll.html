@@ -21,6 +21,7 @@
 	ul {
 	    text-align: center; /* Center align text for list */
 	    padding-left: 0; /* Remove default padding */
+	    margin-left: 0;
 	}
 	.catButton {
 	    background-color: #181825; /* Background color */
@@ -123,7 +124,7 @@
 	    padding: 2.5px;
 	    border-bottom: none; /* Removed the border */
 	    max-width: 27%; /*calc(100% - 30% - 20px - 50px); /* Adjusted to account for the note-taking area and additional space */
-	    margin-left: 40%;
+	    <!-- margin-left: 40%; -->
 	}
 	.text-box {
 	    flex-grow: 1;
@@ -259,10 +260,8 @@ function rollDice() {
     var die = document.getElementById("dice").value;
     var dieNumber = parseInt(die.substring(1));
     let roll = Math.floor(Math.random() * (dieNumber - 1 + 1) + 1);
-    if (firstRoll) {
-        firstRoll = false;
-    }
     var entry = document.createElement('li');
+    entry.id = "roll";
     
     // Check if the roll has been generated before
     if (colorMap[roll]) {
@@ -296,6 +295,7 @@ function rollDice() {
             list.removeChild(list.children[0]);
         }
     }
+   	setLiMaxWidth();
 }
 
 function generateWeightedColor(number, maxValue) {
@@ -469,6 +469,7 @@ function adjustMarkdownBoxPosition() {
 		noteTakingDiv.style.top = topElementsHeight + 'px';
 		noteTakingDiv.style.height = (pageEnd - 40) + "px";
 	}
+   	setLiMaxWidth();
 }
 
 // Call the function when the window is resized
@@ -559,6 +560,51 @@ document.getElementById("decisionDice").addEventListener("change", function() {
             this.value = this.options[this.selectedIndex - 1].value;
         }
     }
+});
+
+function setLiMaxWidth() {
+	const liElement = document.querySelector('#roll');
+	if (liElement) {
+		const preElement = document.querySelector('#markdownOutput');
+		const liLeft = liElement.getBoundingClientRect().left;
+		const preLeft = preElement.getBoundingClientRect().left;
+		const distanceBetween = (preLeft - liLeft) - 15;
+		const liElements = document.querySelectorAll('.recent-rolls li');
+		liElements.forEach(li => {
+			li.style.maxWidth = `${distanceBetween}px`;
+		});
+	}
+}
+
+function adjustMarginLeft() {
+    console.log('adjustMarginLeft function called'); // Debugging statement
+
+    const breakpoint = 1000; // Example breakpoint, adjust as needed
+    const listItems = document.querySelectorAll('.recent-rolls');
+
+    console.log(`Found ${listItems.length} .recent-rolls li elements`); // Debugging statement
+
+    function adjustMargin() {
+        console.log(`Window width: ${window.innerWidth}`); // Debugging statement
+
+        if (window.innerWidth <= breakpoint) {
+            listItems.forEach(item => {
+                item.style.marginLeft = '0';
+            });
+        } else {
+            listItems.forEach(item => {
+                item.style.marginLeft = '40%';
+            });
+        }
+    }
+
+    adjustMargin();
+    window.addEventListener('resize', adjustMargin);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed'); // Debugging statement
+    adjustMarginLeft();
 });
 </script>
 </html>
