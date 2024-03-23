@@ -582,7 +582,8 @@ function adjustMarginLeft() {
     function adjustMargin() {
 		if (isMobileDevice()) {
 			listItems.forEach(item => {
-				item.style.marginLeft = '95%';
+				item.style.marginLeft = '0';
+				item.style.maxWidth = `98%`;
             });
 		}
 		else {
