@@ -620,21 +620,21 @@ function toggleNotes() {
     }
 }
 
-	if (isMobileDevice()) {
-		var button = document.createElement("button");
-		button.className = "catButton";
-		button.id = "toggleNotes";
-		button.innerHTML = "Toggle Notes";
-		button.onclick = toggleNotes;
-		var targetDiv = document.getElementById("top-elements");
-		targetDiv.appendChild(button);
-		const markdownOutput = document.querySelector('.markdown-output');
-        markdownOutput.style.position = 'static'; // or 'static'
-        markdownOutput.style.width = '99%';
-        markdownOutput.style.display = "none";
-		const noteTaking = document.querySelector('.markdown-taking');
-        noteTaking.style.position = 'static'; // or 'static'
-        noteTaking.style.width = '99%';
-	}
+if (isMobileDevice()) {
+	var button = document.createElement("button");
+	button.className = "catButton";
+	button.id = "toggleNotes";
+	button.innerHTML = "Toggle Notes";
+	button.onclick = toggleNotes;
+	var targetDiv = document.getElementById("top-elements");
+	targetDiv.appendChild(button);
+	const markdownOutput = document.querySelector('.markdown-output');
+    markdownOutput.style.position = 'static'; // or 'static'
+    markdownOutput.style.width = '99%';
+    markdownOutput.style.display = "none";
+	const noteTaking = document.querySelector('.note-taking');
+    noteTaking.style.position = 'static'; // or 'static'
+    noteTaking.style.width = '99%';
+}
 </script>
 </html>
