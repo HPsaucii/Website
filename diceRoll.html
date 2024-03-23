@@ -562,7 +562,7 @@ document.getElementById("decisionDice").addEventListener("change", function() {
 
 function setLiMaxWidth() {
 	const liElement = document.querySelector('#roll');
-	if (liElement) {
+	if (liElement && !isMobileDevice()) {
 		const preElement = document.querySelector('#markdownOutput');
 		const liLeft = liElement.getBoundingClientRect().left;
 		const preLeft = preElement.getBoundingClientRect().left;
