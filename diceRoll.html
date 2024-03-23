@@ -453,22 +453,23 @@ function adjustMarkdownBoxPosition() {
     const topElementsHeight = topElements.offsetHeight + 10;
     const pageEnd = viewportHeight - topElementsHeight;
 
-
-	if (noteTakingInvisible) {
-	    markdownBox.style.top = topElementsHeight + 'px';
-	    markdownBox.style.height = (pageEnd - 40) + "px";
-	}
-	else {
-		if (document.getElementById('editableTextarea').value.trim() === '') {
-			markdownBox.style.height = pageEnd + "px";
+	if (!isMobileDevice()) {
+		if (noteTakingInvisible) {
+		    markdownBox.style.top = topElementsHeight + 'px';
+		    markdownBox.style.height = (pageEnd - 40) + "px";
 		}
 		else {
-			markdownBox.style.height = (pageEnd + 15) + "px";
+			if (document.getElementById('editableTextarea').value.trim() === '') {
+				markdownBox.style.height = pageEnd + "px";
+			}
+			else {
+				markdownBox.style.height = (pageEnd + 15) + "px";
+			}
+			noteTakingDiv.style.top = topElementsHeight + 'px';
+			noteTakingDiv.style.height = (pageEnd - 40) + "px";
 		}
-		noteTakingDiv.style.top = topElementsHeight + 'px';
-		noteTakingDiv.style.height = (pageEnd - 40) + "px";
+	   	setLiMaxWidth();
 	}
-   	setLiMaxWidth();
 }
 
 // Call the function when the window is resized
