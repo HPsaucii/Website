@@ -577,16 +577,9 @@ function setLiMaxWidth() {
 }
 
 function adjustMarginLeft() {
-    console.log('adjustMarginLeft function called'); // Debugging statement
-
     const breakpoint = 1000; // Example breakpoint, adjust as needed
     const listItems = document.querySelectorAll('.recent-rolls');
-
-    console.log(`Found ${listItems.length} .recent-rolls li elements`); // Debugging statement
-
     function adjustMargin() {
-        console.log(`Window width: ${window.innerWidth}`); // Debugging statement
-
         if (window.innerWidth <= breakpoint) {
             listItems.forEach(item => {
                 item.style.marginLeft = '0';
@@ -597,14 +590,38 @@ function adjustMarginLeft() {
             });
         }
     }
-
     adjustMargin();
     window.addEventListener('resize', adjustMargin);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM fully loaded and parsed'); // Debugging statement
     adjustMarginLeft();
 });
+
+function isMobileDevice() {
+	    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+}
+
+function toggleNotes() {
+    var markdownOutput = document.getElementById("markdownOutput");
+    if (markdownOutput.style.display === "none") {
+        markdownOutput.style.display = "block";
+    } else {
+        markdownOutput.style.display = "none";
+    }
+}
+
+	if (isMobileDevice()) {
+		var button = document.createElement("button");
+		button.className = "catButton";
+		button.id = "toggleNotes";
+		button.innerHTML = "Toggle Notes";
+		button.onclick = toggleNotes;
+		var targetDiv = document.getElementById("top-elements");
+		targetDiv.appendChild(button);
+	}
+	else {
+		
+	}
 </script>
 </html>
