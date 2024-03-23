@@ -381,22 +381,22 @@ document.getElementById("dice").addEventListener("change", function() {
 document.addEventListener('DOMContentLoaded', function() {
     const editableTextarea = document.getElementById('editableTextarea');
     const markdownPre = document.getElementById('markdownOutput');
-    const placeholderText = "Your markdown will appear here...";
+    const placeholderText = "Take notes here...";
 
     // Function to convert markdown to HTML and update the pre tag
     function updateMarkdownPre() {
         if (editableTextarea.value.trim() === '') {
             markdownPre.textContent = placeholderText;
             markdownPre.style.color = '#434658';
-            markdownPre.style.paddingTop = '15px';
-            markdownPre.style.height = 'calc(39% - 1px)';
+            markdownPre.style.paddingTop = '11px';
+            
         } else {
             const html = marked.parse(editableTextarea.value);
             markdownPre.innerHTML = html;
             markdownPre.style.color = '#cdd6f4';
-            markdownPre.style.paddingTop = '0';
-            markdownPre.style.height = '40%';
+            markdownPre.style.paddingTop = '0px';
         }
+        adjustMarkdownBoxPosition();
     }
 
     // Listen for input events on the textarea
@@ -405,21 +405,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial update to ensure the pre tag is populated
     updateMarkdownPre();
 
-    // Function to adjust the markdown box position based on the top elements
-    function adjustMarkdownBoxPosition() {
-        // Assuming the top elements are in a container with the ID 'top-elements'
-        const topElements = document.getElementById('top-elements');
-        const topElementsHeight = topElements ? topElements.offsetHeight + 10 : 0;
-
-        // Adjust the top position of the markdown box
-        markdownPre.style.top = topElementsHeight + 'px';
-    }
 
     // Call the function to adjust the markdown box position initially
     adjustMarkdownBoxPosition();
-
-    // Ensure the markdown output area is expanded by default
-    markdownPre.style.height = '90%';
 
     // Explicitly set the initial state of the note-taking and markdown output areas
     const noteTakingDiv = document.querySelector('.note-taking');
@@ -430,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     editableTextarea.addEventListener('blur', function() {
         noteTakingDiv.style.display = 'none';
-        markdownPre.style.height = '90%'; // Expand the markdown output area
+        markdownPre.style.display = "block";
         adjustMarkdownBoxPosition(); // Adjust the top position when the textarea loses focus
     });
 });
@@ -445,17 +433,11 @@ document.getElementById('markdownOutput').addEventListener('click', function() {
     const topElementsHeight = topElements.offsetHeight + 10;
 
 	if (!isNoteTakingVisible) {
-	    if (isNoteTakingVisible) {
-	        noteTakingDiv.style.display = 'none';
-	        markdownOutputDiv.style.height = '90%'; // Expand to full height
-	        markdownBox.style.top = topElementsHeight + 'px';
-	    } else {
-	        noteTakingDiv.style.display = 'block';
-	        markdownOutputDiv.style.height = '40%'; // Reset to original height
-	        markdownOutputDiv.style.top = '55%'; // Reset to original top position
-	        editableTextarea.focus();
-	    }
-	}
+        noteTakingDiv.style.display = 'block';
+        markdownOutputDiv.style.display = "none";
+        adjustMarkdownBoxPosition()
+        editableTextarea.focus();
+    }
 });
 
 function adjustMarkdownBoxPosition() {
@@ -463,20 +445,27 @@ function adjustMarkdownBoxPosition() {
     const topElements = document.getElementById('top-elements');
     const markdownBox = document.getElementById('markdownOutput');
     const noteTakingDiv = document.querySelector('.note-taking');
-    const isNoteTakingVisible = noteTakingDiv.style.display !== 'none';
+    const noteTakingInvisible = noteTakingDiv.style.display == 'none';
+    var viewportHeight = window.innerHeight;
 
     // Calculate the total height of the top elements
     const topElementsHeight = topElements.offsetHeight + 10;
+    const pageEnd = viewportHeight - topElementsHeight;
 
 
-	if (!isNoteTakingVisible) {
+	if (noteTakingInvisible) {
 	    markdownBox.style.top = topElementsHeight + 'px';
-    	noteTakingDiv.style.top = topElementsHeight + 'px';
+	    markdownBox.style.height = (pageEnd - 40) + "px";
 	}
 	else {
-		markdownBox.style.height = '40%'; // Reset to original height
-		markdownBox.style.top = '55%'; // Reset to original top position
+		if (document.getElementById('editableTextarea').value.trim() === '') {
+			markdownBox.style.height = pageEnd + "px";
+		}
+		else {
+			markdownBox.style.height = (pageEnd + 15) + "px";
+		}
 		noteTakingDiv.style.top = topElementsHeight + 'px';
+		noteTakingDiv.style.height = (pageEnd - 40) + "px";
 	}
 }
 
@@ -498,6 +487,7 @@ function toggleDecisionDiceFeatures() {
         decisionDiceSelect.classList.add("hidden");
         rollDecisionDiceButton.classList.add("hidden"); // Hide the button
     }
+    adjustMarkdownBoxPosition();
 }
 document.addEventListener('DOMContentLoaded', function() {
     toggleDecisionDiceFeatures(); // Set initial state
