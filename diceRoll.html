@@ -568,7 +568,7 @@ function setLiMaxWidth() {
 		const preElement = document.querySelector('#markdownOutput');
 		const liLeft = liElement.getBoundingClientRect().left;
 		const preLeft = preElement.getBoundingClientRect().left;
-		const distanceBetween = (preLeft - liLeft) - 15;
+		const distanceBetween = (preLeft - liLeft) - 25;
 		const liElements = document.querySelectorAll('.recent-rolls li');
 		liElements.forEach(li => {
 			li.style.maxWidth = `${distanceBetween}px`;
