@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 markdownPre.textContent = placeholderText;
                 markdownPre.style.color = '#434658';
                 markdownPre.style.paddingTop = '10px';
-                markdownPre.querySelector('p').style.marginLeft = '0px';
+                markdownPre.style.marginLeft = '0px';
             } else {
                 const html = marked.parse(editableTextarea.value);
                 markdownPre.innerHTML = html;
