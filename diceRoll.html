@@ -564,7 +564,12 @@ document.getElementById("decisionDice").addEventListener("change", function() {
 
 function setLiMaxWidth() {
 	const liElement = document.querySelector('#roll');
-	if (liElement) {
+	if (isMobileDevice()) {
+		liElements.forEach(li => {
+			li.style.maxWidth = `100%`;
+		});
+	}
+	else if (liElement) {
 		const preElement = document.querySelector('#markdownOutput');
 		const liLeft = liElement.getBoundingClientRect().left;
 		const preLeft = preElement.getBoundingClientRect().left;
@@ -583,7 +588,7 @@ function adjustMarginLeft() {
 		if (isMobileDevice()) {
 			listItems.forEach(item => {
 				item.style.marginLeft = '0';
-				item.style.maxWidth = `1000px`;
+				item.style.maxWidth = `100%`;
             });
 		}
 		else {
