@@ -390,13 +390,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (editableTextarea.value.trim() === '') {
                 markdownPre.textContent = placeholderText;
                 markdownPre.style.color = '#434658';
-                markdownPre.style.paddingTop = '11px';
+                markdownPre.style.paddingTop = '10px';
+                markdownPre.querySelector('p').style.marginLeft = '0px';
             } else {
                 const html = marked.parse(editableTextarea.value);
                 markdownPre.innerHTML = html;
                 markdownPre.style.color = '#cdd6f4';
                 markdownPre.style.paddingTop = '0px';
-                markdownPre.querySelector('p').style.marginTop = '11px';
+                markdownPre.querySelector('p').style.marginTop = '10px';
                 markdownPre.querySelector('p').style.marginLeft = '0px';
             }
         }
