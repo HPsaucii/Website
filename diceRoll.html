@@ -625,6 +625,13 @@ function toggleNotes() {
 		button.onclick = toggleNotes;
 		var targetDiv = document.getElementById("top-elements");
 		targetDiv.appendChild(button);
+		const markdownOutput = document.querySelector('.markdown-output');
+        markdownOutput.style.position = ''; // or 'static'
+        markdownOutput.style.width = '99%'; // or 'static'
+        markdownOutput.style.display = "none";
+		const noteTaking = document.querySelector('.markdown-taking');
+        noteTaking.style.position = ''; // or 'static'
+        noteTaking.style.width = '99%'; // or 'static'
 	}
 </script>
 </html>
