@@ -580,15 +580,22 @@ function adjustMarginLeft() {
     const breakpoint = 1000; // Example breakpoint, adjust as needed
     const listItems = document.querySelectorAll('.recent-rolls');
     function adjustMargin() {
-        if (window.innerWidth <= breakpoint) {
-            listItems.forEach(item => {
-                item.style.marginLeft = '0';
+		if (isMobileDevice()) {
+			listItems.forEach(item => {
+				item.style.marginLeft = '95%';
             });
-        } else {
-            listItems.forEach(item => {
-                item.style.marginLeft = '40%';
-            });
-        }
+		}
+		else {
+	       if (window.innerWidth <= breakpoint) {
+	           listItems.forEach(item => {
+	               item.style.marginLeft = '0';
+	           });
+	       } else {
+	           listItems.forEach(item => {
+	               item.style.marginLeft = '40%';
+	           });
+	       }
+		}
     }
     adjustMargin();
     window.addEventListener('resize', adjustMargin);
@@ -619,9 +626,6 @@ function toggleNotes() {
 		button.onclick = toggleNotes;
 		var targetDiv = document.getElementById("top-elements");
 		targetDiv.appendChild(button);
-	}
-	else {
-		
 	}
 </script>
 </html>
