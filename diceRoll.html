@@ -151,40 +151,42 @@
 	</style>
 </head>
 <body>
-	<pre id="markdownOutput" class="markdown-output"></pre>
-	<div id="decisionDiceNotification" class="hidden">Decision dice landed on: <span id="decisionDiceResult"></span></div>
-	<label for="maxDepthInput">Max Depth:</label>
-	<input class="catInput" type="number" id="maxDepthInput" min="1" value="5">
-	<button class="catButton" id="startSimulation" onclick="startSimulation()">Start Simulation</button>
-	<label for="toggleDecisionDice">Enable Decision Dice Roll:</label>
-	<input type="checkbox" id="toggleDecisionDice" onclick="toggleDecisionDiceFeatures()">
-	<select id="decisionDice" class="catInput hidden">
-	    <option value="d2">d2</option>
-	    <option value="d3">d3</option>
-	    <option value="d4">d4</option>
-	    <option value="d6">d6</option>
-	    <option value="d12">d12</option>
-	    <option value="d20">d20</option>
-	    <option value="d100">d100</option>
-	    <option value="custom">Custom...</option>
-	</select>
-	<button class="catButton hidden multipleRollsButton" id="rollDecisionDice" onclick="rollDecisionDice()">Roll Decision Dice</button>
-    <select id="dice">
-        <option value="d2">d2</option>
-        <option value="d3">d3</option>
-        <option value="d4">d4</option>
-        <option value="d6">d6</option>
-        <option value="d12">d12</option>
-        <option value="d20">d20</option>
-        <option value="d100">d100</option>
-        <option value="custom">Custom...</option>
-    </select>
-    <button class="catButton" type="button" onclick="rollDice()">Roll it baby!</button>
-   	<input class="catInput" type="number" id="rollAmnt" name="amnt" value="1" onkeypress="handleKeyPress(event)">	
-    <button class="catButton" type="button" onclick="multipleRolls()">Multiple Rolls!</button>
-    <button class="catButton" type="button" onclick="clearRolls()">Clear</button>
+	<div id="top-elements" class="top-elements">
+		<label for="maxDepthInput">Max Depth:</label>
+		<input class="catInput" type="number" id="maxDepthInput" min="1" value="5">
+		<button class="catButton" id="startSimulation" onclick="startSimulation()">Start Simulation</button>
+		<label for="toggleDecisionDice">Enable Decision Dice Roll:</label>
+		<input type="checkbox" id="toggleDecisionDice" onclick="toggleDecisionDiceFeatures()">
+		<select id="decisionDice" class="catInput hidden">
+		    <option value="d2">d2</option>
+		    <option value="d3">d3</option>
+		    <option value="d4">d4</option>
+		    <option value="d6">d6</option>
+		    <option value="d12">d12</option>
+		    <option value="d20">d20</option>
+		    <option value="d100">d100</option>
+		    <option value="custom">Custom...</option>
+		</select>
+		<button class="catButton hidden multipleRollsButton" id="rollDecisionDice" onclick="rollDecisionDice()">Roll Decision Dice</button>
+	    <select id="dice">
+	        <option value="d2">d2</option>
+	        <option value="d3">d3</option>
+	        <option value="d4">d4</option>
+	        <option value="d6">d6</option>
+	        <option value="d12">d12</option>
+	        <option value="d20">d20</option>
+	        <option value="d100">d100</option>
+	        <option value="custom">Custom...</option>
+	    </select>
+	    <button class="catButton" type="button" onclick="rollDice()">Roll it baby!</button>
+	   	<input class="catInput" type="number" id="rollAmnt" name="amnt" value="1" onkeypress="handleKeyPress(event)">	
+	    <button class="catButton" type="button" onclick="multipleRolls()">Multiple Rolls!</button>
+	    <button class="catButton" type="button" onclick="clearRolls()">Clear</button>
+    </div>
     <ul id="recentRolls" class="recent-rolls"></ul>
     <textarea id="editableTextarea" class="note-taking catInput hidden" roles="10" placeholder="Take notes here..."></textarea>
+    <pre id="markdownOutput" class="markdown-output"></pre>
+	<div id="decisionDiceNotification" class="hidden">Decision dice landed on: <span id="decisionDiceResult"></span></div>
 </body>
 <script>
 var total = 0;
@@ -219,6 +221,7 @@ document.getElementById('dice').addEventListener('change', function() {
     // Now you can use maxDiceSize in your simulation logic
     console.log('Max Dice Size:', maxDiceSize);
 });
+
 function simulateDecisionTree(maxDiceSize, maxDepth, depth = 0) {
     if (depth > maxDepth) {
         return;
@@ -228,7 +231,7 @@ function simulateDecisionTree(maxDiceSize, maxDepth, depth = 0) {
 
     if (decision === 'roll') {
         // Use the existing rollDice function
-	console.log(`Rolling dice at depth: ${depth}`);
+        console.log(`Rolling dice at depth: ${depth}`);
         rollDice();
     } else {
         const diceCount = Math.floor(Math.random() * maxDiceSize) + 1;
@@ -402,9 +405,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial update to ensure the pre tag is populated
     updateMarkdownPre();
 
+    // Function to adjust the markdown box position based on the top elements
+    function adjustMarkdownBoxPosition() {
+        // Assuming the top elements are in a container with the ID 'top-elements'
+        const topElements = document.getElementById('top-elements');
+        const topElementsHeight = topElements ? topElements.offsetHeight + 10 : 0;
+
+        // Adjust the top position of the markdown box
+        markdownPre.style.top = topElementsHeight + 'px';
+    }
+
+    // Call the function to adjust the markdown box position initially
+    adjustMarkdownBoxPosition();
+
     // Ensure the markdown output area is expanded by default
     markdownPre.style.height = '90%';
-    markdownPre.style.top = '70px';
 
     // Explicitly set the initial state of the note-taking and markdown output areas
     const noteTakingDiv = document.querySelector('.note-taking');
@@ -413,24 +428,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Automatically focus the text area
     editableTextarea.focus();
 
-	editableTextarea.addEventListener('blur', function() {
+    editableTextarea.addEventListener('blur', function() {
         noteTakingDiv.style.display = 'none';
         markdownPre.style.height = '90%'; // Expand the markdown output area
-        markdownPre.style.top = '70px'; // Adjust the top position
+        adjustMarkdownBoxPosition(); // Adjust the top position when the textarea loses focus
     });
 });
+
 
 // Add an event listener to the markdown box to toggle the visibility of the note-taking area
 document.getElementById('markdownOutput').addEventListener('click', function() {
     const noteTakingDiv = document.querySelector('.note-taking');
     const markdownOutputDiv = document.getElementById('markdownOutput');
     const isNoteTakingVisible = noteTakingDiv.style.display !== 'none';
+    const topElements = document.getElementById('top-elements');
+    const topElementsHeight = topElements.offsetHeight + 10;
 
 	if (!isNoteTakingVisible) {
 	    if (isNoteTakingVisible) {
 	        noteTakingDiv.style.display = 'none';
 	        markdownOutputDiv.style.height = '90%'; // Expand to full height
-	        markdownOutputDiv.style.top = '70px'; // Adjust the top position
+	        markdownBox.style.top = topElementsHeight + 'px';
 	    } else {
 	        noteTakingDiv.style.display = 'block';
 	        markdownOutputDiv.style.height = '40%'; // Reset to original height
@@ -439,6 +457,34 @@ document.getElementById('markdownOutput').addEventListener('click', function() {
 	    }
 	}
 });
+
+function adjustMarkdownBoxPosition() {
+    // Select the top elements and the markdown box
+    const topElements = document.getElementById('top-elements');
+    const markdownBox = document.getElementById('markdownOutput');
+    const noteTakingDiv = document.querySelector('.note-taking');
+    const isNoteTakingVisible = noteTakingDiv.style.display !== 'none';
+
+    // Calculate the total height of the top elements
+    const topElementsHeight = topElements.offsetHeight + 10;
+
+
+	if (!isNoteTakingVisible) {
+	    markdownBox.style.top = topElementsHeight + 'px';
+    	noteTakingDiv.style.top = topElementsHeight + 'px';
+	}
+	else {
+		markdownBox.style.height = '40%'; // Reset to original height
+		markdownBox.style.top = '55%'; // Reset to original top position
+		noteTakingDiv.style.top = topElementsHeight + 'px';
+	}
+}
+
+// Call the function when the window is resized
+window.addEventListener('resize', adjustMarkdownBoxPosition);
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', adjustMarkdownBoxPosition);
 
 function toggleDecisionDiceFeatures() {
     var decisionDiceSelect = document.getElementById("decisionDice");
