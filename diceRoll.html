@@ -382,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const editableTextarea = document.getElementById('editableTextarea');
     const markdownPre = document.getElementById('markdownOutput');
     const placeholderText = "Take notes here...";
+    const pElement = markdownPre.querySelector('p');
 
     // Function to convert markdown to HTML and update the pre tag
     function updateMarkdownPre() {
@@ -395,6 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
             markdownPre.innerHTML = html;
             markdownPre.style.color = '#cdd6f4';
             markdownPre.style.paddingTop = '0px';
+            markdownPre.querySelector('p').style.marginTop = '11px';
         }
         adjustMarkdownBoxPosition();
     }
