@@ -12,6 +12,7 @@
 	    background-color: #1e1e2e;
 	    color: #cdd6f4;
 	    text-align: center; /* Center align text */
+	    overflow: hidden;
 	}
 	.container {
 	    margin: auto; /* Center block-level elements horizontally */
@@ -154,9 +155,54 @@
 	#recentRolls {
 	    margin-top: 5px; /* Adjust this value to reduce space above recentRolls */
 	}
+	#cheeseContainer {
+	    position: relative;
+	    width: 100%;
+	    height: 100%;
+	    z-index: 1;
+	}
+	.cheese {
+	    width: 100px;
+	    height: 100px;
+	    background-image: url('cheese.png');
+	    background-size: cover;
+	    position: absolute;
+	    z-index: 2; /* Ensure the cheese elements are above the container */
+	}
+	.ad-container {
+	    position: relative;
+	    width: 100%;
+	    height: 1000000;
+	}
+	.ad {
+	    position: absolute;
+	    width: 225px; /* Fixed width */
+	    height: 100px; /* Fixed height */
+	    background-color: #181825;
+	    border: 3px solid #cba6f7;
+	    display: none;
+	    padding: 10px;
+	    box-sizing: border-box;
+	    color: #cdd6f4;
+	    text-align: center;
+	    user-select: none; /* Prevent text from being highlighted */
+	}
+	.close-button {
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	    background-color: #f38ba8;
+	    color: 313244;
+	    border: none;
+	    cursor: pointer;
+	    padding: 2px 5px;
+	    font-size: 12px;
+	}
 	</style>
 </head>
 <body>
+	<div id="cheeseContainer"></div>
+	<div class="ad-container"></div>
 	<div id="top-elements" class="top-elements">
 		<label for="toggleTreeRoll">Enable Tree dice Roll:</label>
 		<input type="checkbox" id="toggleTreeRoll" onclick="toggleTreeRollFeatures()">
@@ -202,6 +248,11 @@ var list = document.getElementById('recentRolls');
 var rollNum = 1;
 var firstRoll = true;
 var colorMap = {}; // Object to store colors for each number
+var previousDecisionDiceValue = "d6";
+var previousDiceValue = "d6";
+var cheatCodes = "";
+var codesArray = [];
+var diceMode = "";
 
 function handleKeyPress(event) {
     if (event.keyCode === 13) {
@@ -266,7 +317,15 @@ function startSimulation() {
 function rollDice() {
     var die = document.getElementById("dice").value;
     var dieNumber = parseInt(die.substring(1));
-    let roll = Math.floor(Math.random() * (dieNumber - 1 + 1) + 1);
+	if (diceMode == "rigged") {
+		var roll = Math.floor(Math.random() * (dieNumber / 2) + dieNumber / 2);
+	}
+	else if (diceMode == "copium") {
+		var roll = Math.floor(Math.random() * (dieNumber / 2) + 1);
+	}
+	else {
+		var roll = Math.floor(Math.random() * (dieNumber - 1 + 1) + 1);
+	}
     var entry = document.createElement('li');
     entry.id = "roll";
     
@@ -354,28 +413,7 @@ function rollDecisionDice() {
     setTimeout(function() {
         decisionDiceNotification.classList.add("hidden");
     }, 3000); // Adjust the delay as needed
-
-    // If a custom decision dice size was entered, add it to the decision dice selection dropdown
-    if (customDecisionDieSize) {
-        var customOptionExists = Array.from(decisionDiceSelect.options).some(option => option.value === "d" + customDecisionDieSize);
-        if (!customOptionExists) {
-            var newOption = document.createElement("option");
-            newOption.value = "d" + customDecisionDieSize;
-            newOption.text = "d" + customDecisionDieSize;
-            decisionDiceSelect.add(newOption);
-        }
-
-        // Sort the options of the select element
-        var options = Array.from(decisionDiceSelect.options);
-        options.sort(function(a, b) {
-            return parseInt(a.value.substring(1)) - parseInt(b.value.substring(1));
-        });
-        decisionDiceSelect.innerHTML = ''; // Clear the select element
-        options.forEach(function(option) {
-            decisionDiceSelect.add(option); // Re-add the sorted options
-        });
-    }
-
+    
     // Clear the custom decision dice size input field
     document.getElementById("customDecisionDie").value = "";
 }
@@ -399,7 +437,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to convert markdown to HTML and update the pre tag
     function updateMarkdownPre() {
-
         if (isMobileDevice()) {
             if (editableTextarea.value.trim() === '') {
                 markdownPre.textContent = placeholderText;
@@ -452,6 +489,11 @@ document.addEventListener('DOMContentLoaded', function() {
         noteTakingDiv.style.display = 'none';
         markdownPre.style.display = "block";
         adjustMarkdownBoxPosition(); // Adjust the top position when the textarea loses focus
+        if (editableTextarea.value.trim().toLowerCase() === 'konami') {
+        	cheatCodes = prompt('Enter your cheat code(s)!');
+			konamiCalc()
+        	return;
+    	}
     });
 });
 
@@ -545,15 +587,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function addCustomDieOption(selectElement, customDieSize) {
     // Check for duplicates
-    var duplicateOption = Array.from(selectElement.options).find(option => option.value === "d" + customDieSize);
+    var duplicateOption = Array.from(selectElement.options).find(option => option.value === (customDieSize.startsWith('d') ? customDieSize : "d" + customDieSize));
     if (duplicateOption) {
         // If a duplicate is found, select it
         selectElement.value = duplicateOption.value;
     } else {
         // Create new option
         var newOption = document.createElement("option");
-        newOption.value = "d" + customDieSize;
-        newOption.text = "d" + customDieSize;
+        // Determine the value and text based on whether customDieSize starts with 'd'
+        newOption.value = customDieSize.startsWith('d') ? customDieSize : "d" + customDieSize;
+        newOption.text = newOption.value; // Assuming the text should match the value
 
         // Sort the options by their numerical value, including the "Custom..." option
         var options = Array.from(selectElement.options).sort(function(a, b) {
@@ -581,32 +624,73 @@ function addCustomDieOption(selectElement, customDieSize) {
         }
 
         // Select the newly added option
-        selectElement.value = "d" + customDieSize;
+        selectElement.value = newOption.value;
     }
 }
 
 document.getElementById("dice").addEventListener("change", function() {
     if (this.value === "custom") {
-        var customDieSize = prompt("Enter custom die size:");
-        if (customDieSize) {
-            addCustomDieOption(this, customDieSize);
-        } else {
-            // If the user cancels the prompt, revert to the previous selection
-            this.value = this.options[this.selectedIndex - 1].value;
-        }
+        var customDieSize;
+        do {
+            customDieSize = prompt("Enter custom die size:");
+            if (customDieSize) {
+                // Validate the customDieSize before attempting to add it
+                if (!/^[d0-9][0-9]*$/.test(customDieSize)) {
+                    alert("Invalid input. The first character must be 'd' or a number, and all subsequent characters must be numbers.");
+                    customDieSize = null; // Set to null to re-prompt
+                } else {
+                    addCustomDieOption(this, customDieSize);
+                }
+            } else {
+                // If the user cancels the prompt, revert to the previous selection
+                this.value = previousDiceValue;
+            }
+        } while (!customDieSize && this.value === "custom");
+    }
+    else {
+    	previousDiceValue = this.value;
     }
 });
 
 document.getElementById("decisionDice").addEventListener("change", function() {
     if (this.value === "custom") {
-        var customDecisionDieSize = prompt("Enter custom decision die size:");
-        if (customDecisionDieSize) {
-            addCustomDieOption(this, customDecisionDieSize);
-        } else {
-            // If the user cancels the prompt, revert to the previous selection
-            this.value = this.options[this.selectedIndex - 1].value;
+        var customDecisionDieSize;
+        do {
+            customDecisionDieSize = prompt("Enter custom decision die size:");
+            if (customDecisionDieSize) {
+                // Validate the customDecisionDieSize before attempting to add it
+                if (!/^[d0-9][0-9]*$/.test(customDecisionDieSize)) {
+                    alert("Invalid input. The first character must be 'd' or a number, and all subsequent characters must be numbers.");
+                    customDecisionDieSize = null; // Set to null to re-prompt
+                } else {
+                    addCustomDieOption(this, customDecisionDieSize);
+                }
+            } else {
+                // If the user cancels the prompt, revert to the previous selection
+                this.value = previousDecisionDiceValue;
+            }
+        } while (!customDecisionDieSize && this.value === "custom");
+    }
+    else {
+    	previousDecisionDiceValue = this.value;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to set the default option for a given select element
+    function setDefaultOption(selectId, defaultValue) {
+        var selectElement = document.getElementById(selectId);
+        var defaultOption = selectElement.querySelector(`option[value="${defaultValue}"]`);
+        if (defaultOption) {
+            defaultOption.selected = true;
         }
     }
+
+    // Set the default option for the "dice" select element
+    setDefaultOption('dice', 'd6');
+
+    // Set the default option for the "decisionDice" select element
+    setDefaultOption('decisionDice', 'd6');
 });
 
 function setLiMaxWidth() {
@@ -685,6 +769,176 @@ if (isMobileDevice()) {
 	const noteTaking = document.querySelector('.note-taking');
     noteTaking.style.position = 'static'; // or 'static'
     noteTaking.style.width = '95%';
+}
+function theCheese() {
+    const cheeseContainer = document.getElementById('cheeseContainer');
+    let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
+
+    // Function to create a cheese waterfall
+    function createCheeseWaterfall(totalCheeses, spreadFactor, initialYOffset) {
+        // Function to create a cheese element
+        function createCheese() {
+            const cheese = document.createElement('div');
+            cheese.classList.add('cheese');
+
+            // Generate random horizontal position
+            const randomX = Math.random() * windowWidth;
+            cheese.style.left = `${randomX}px`;
+            cheese.style.top = `${initialYOffset}px`; // Start just outside the viewable area at the top
+
+            return cheese;
+        }
+
+        // Create cheeses
+        for (let i = 0; i < totalCheeses; i++) {
+            const cheese = createCheese();
+            cheeseContainer.appendChild(cheese);
+
+            // Calculate a delay that ensures an even spread and starts cheese falling sooner
+            const delay = (i / spreadFactor) * 100; // Adjust delay based on spread factor
+
+            // Delay the start of the animation for each cheese
+            setTimeout(() => {
+                // Function to update cheese position
+                function updateCheesePosition() {
+                    const currentX = parseFloat(cheese.style.left) || 0;
+                    const currentY = parseFloat(cheese.style.top) || 0;
+
+                    // Update position
+                    cheese.style.top = `${currentY + 10}px`; // Falling downwards
+
+                    // Check if cheese has fallen off the screen
+                    if (currentY > windowHeight) {
+                        // Reset position
+                        const randomX = Math.random() * windowWidth;
+                        cheese.style.left = `${randomX}px`;
+                        cheese.style.top = `${initialYOffset}px`; // Reset to initial position
+                    }
+                }
+
+                // Start the animation for this cheese
+                setInterval(updateCheesePosition, 20);
+            }, delay);
+        }
+    }
+
+    // Call the function to create the cheese waterfall
+    createCheeseWaterfall(1000, 1, -100);
+
+    // Function to handle window resize
+    function handleResize() {
+        windowHeight = window.innerHeight;
+        windowWidth = window.innerWidth;
+        // Optionally, adjust the animation speed or other parameters based on the new window size
+    }
+
+    // Add event listener for window resize
+    window.addEventListener('resize', handleResize);
+}
+const adContainer = document.querySelector('.ad-container');
+let numberOfAds = 10; // Initial number of ads to generate
+const adSpokespersonLines = [
+    "Buy our product now!",
+    "Save big with our special offer!",
+    "Experience the future with our latest tech!",
+    "Join the revolution with our innovative product!",
+    "Get the best deal with our limited-time offer!",
+    "Discover the secret to success with our exclusive tips!",
+    "Transform your life with our top-rated product!",
+    "Unlock your potential with our cutting-edge technology!",
+    "Elevate your experience with our premium service!",
+    "Revolutionize your routine with our unique solution!"
+];
+
+function makeDraggable(ad) {
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    ad.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        offsetX = e.clientX - ad.getBoundingClientRect().left;
+        offsetY = e.clientY - ad.getBoundingClientRect().top;
+        // Increase the z-index of the dragged item
+        ad.style.zIndex = ++numberOfAds;
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        ad.style.left = `${e.clientX - offsetX}px`;
+        ad.style.top = `${e.clientY - offsetY}px`;
+        // Ensure the dragged item stays on top
+        ad.style.zIndex = ++numberOfAds;
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+    });
+}
+
+function generateAds(count) {
+    // Find the highest z-index currently in use
+    let highestZIndex = 0;
+    document.querySelectorAll('.ad').forEach(ad => {
+        const zIndex = parseInt(window.getComputedStyle(ad).zIndex, 10);
+        if (zIndex > highestZIndex) {
+            highestZIndex = zIndex;
+        }
+    });
+
+    for (let i = 0; i < count; i++) {
+        const ad = document.createElement('div');
+        ad.className = 'ad';
+        // Generate random position within the viewport
+        ad.style.left = `${Math.random() * (window.innerWidth - 200)}px`; // Subtract ad width to ensure it fits
+        ad.style.top = `${Math.random() * (window.innerHeight - 100)}px`; // Subtract ad height to ensure it fits
+        // Set the z-index to be higher than the highest z-index currently in use
+        ad.style.zIndex = highestZIndex + 1;
+
+        // Create the ad-spokesperson line
+        const line = document.createElement('p');
+        line.textContent = adSpokespersonLines[Math.floor(Math.random() * adSpokespersonLines.length)];
+        ad.appendChild(line);
+
+        // Create the close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'close-button';
+        closeButton.textContent = 'X';
+        closeButton.addEventListener('click', function() {
+            ad.style.display = 'none';
+            generateAds(2); // Generate two new ads when this ad is closed
+        });
+
+        // Append the close button to the ad
+        ad.appendChild(closeButton);
+        adContainer.appendChild(ad);
+
+        // Make the ad draggable
+        makeDraggable(ad);
+
+        // Simulate a delay before showing the ad
+        setTimeout(function() {
+            ad.style.display = 'block';
+        }, Math.random() * 5000); // Random delay between 0 and 5 seconds
+    }
+}
+
+function konamiCalc() {
+	codesArray = cheatCodes.split(' ');
+    if (codesArray.includes("cheese")) {
+        theCheese();
+    }
+    if (codesArray.includes("rigged")) {
+    	diceMode = "rigged";
+    }
+    else {
+    	if (codesArray.includes("copium")) {
+    		diceMode = "copium";
+    	}
+    }
+    if (codesArray.includes("ads")) {
+    	generateAds(numberOfAds);
+    }
 }
 </script>
 </html>
