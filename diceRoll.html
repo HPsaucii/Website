@@ -152,9 +152,10 @@
 </head>
 <body>
 	<div id="top-elements" class="top-elements">
-		<label for="maxDepthInput">Max Depth:</label>
-		<input class="catInput" type="number" id="maxDepthInput" min="1" value="5">
-		<button class="catButton" id="startSimulation" onclick="startSimulation()">Start Simulation</button>
+		<label for="toggleTreeRoll">Enable Tree dice Roll:</label>
+		<input type="checkbox" id="toggleTreeRoll" onclick="toggleTreeRollFeatures()">
+		<input class="catInput hidden" type="number" id="maxDepthInput" min="1" placeholder="Enter depth">
+		<button class="catButton hidden" id="startSimulation" onclick="startSimulation()">Start Simulation</button>
 		<label for="toggleDecisionDice">Enable Decision Dice Roll:</label>
 		<input type="checkbox" id="toggleDecisionDice" onclick="toggleDecisionDiceFeatures()">
 		<select id="decisionDice" class="catInput hidden">
@@ -179,7 +180,7 @@
 	        <option value="custom">Custom...</option>
 	    </select>
 	    <button class="catButton" type="button" onclick="rollDice()">Roll it baby!</button>
-	   	<input class="catInput" type="number" id="rollAmnt" name="amnt" value="1" onkeypress="handleKeyPress(event)">	
+	   	<input class="catInput" type="number" id="rollAmnt" name="amnt" placeholder="Enter amount of rolls" onkeypress="handleKeyPress(event)">	
 	    <button class="catButton" type="button" onclick="multipleRolls()">Multiple Rolls!</button>
 	    <button class="catButton" type="button" onclick="clearRolls()">Clear</button>
     </div>
@@ -504,6 +505,24 @@ function toggleDecisionDiceFeatures() {
     } else {
         decisionDiceSelect.classList.add("hidden");
         rollDecisionDiceButton.classList.add("hidden"); // Hide the button
+    }
+    adjustMarkdownBoxPosition();
+}
+document.addEventListener('DOMContentLoaded', function() {
+    toggleDecisionDiceFeatures(); // Set initial state
+});
+
+function toggleTreeRollFeatures() {
+    var maxDepthInput = document.getElementById("maxDepthInput");
+    var startSimulation = document.getElementById("startSimulation");
+    var isChecked = document.getElementById("toggleTreeRoll").checked;
+
+    if (isChecked) {
+        maxDepthInput.classList.remove("hidden");
+        startSimulation.classList.remove("hidden"); // Make the button visible
+    } else {
+        maxDepthInput.classList.add("hidden");
+        startSimulation.classList.add("hidden"); // Hide the button
     }
     adjustMarkdownBoxPosition();
 }
