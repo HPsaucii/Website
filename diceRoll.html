@@ -184,6 +184,7 @@
 	    <button class="catButton" type="button" onclick="multipleRolls()">Multiple Rolls!</button>
 	    <button class="catButton" type="button" onclick="clearRolls()">Clear</button>
     </div>
+    <div id="totalRolls"></div>
     <ul id="recentRolls" class="recent-rolls"></ul>
     <textarea id="editableTextarea" class="note-taking catInput hidden" roles="10" placeholder="Take notes here..."></textarea>
     <pre id="markdownOutput" class="markdown-output"></pre>
@@ -280,7 +281,12 @@ function rollDice() {
     var paddedRoll = padNumber(roll, maxDigits);
     
     entry.appendChild(document.createTextNode("roll " + rollNum + ": " + paddedRoll));
-    
+
+	total += roll;
+
+    var totalRollsElement = document.getElementById('totalRolls');
+    totalRollsElement.textContent = "The total of your rolls is: " + total;
+
     // Create a text box for each list item
     var textBox = document.createElement('input');
     textBox.type = 'text';
@@ -371,6 +377,7 @@ function rollDecisionDice() {
 function clearRolls() {
     list.innerHTML = "";
     colorMap = {}; // Reset the color map when clearing rolls
+    rollNum = 1;
 }
 
 // Add an event listener to the dice selection dropdown
