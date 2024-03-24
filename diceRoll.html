@@ -876,7 +876,10 @@ function makeDraggable(ad) {
     });
 }
 
-function generateAds(count) {
+function generateAds() {
+    // Determine the number of ads to generate (between 2 and 5)
+    const numberOfAds = Math.floor(Math.random() * 4) + 2; // Generates a number between 2 and 5
+
     // Find the highest z-index currently in use
     let highestZIndex = 0;
     document.querySelectorAll('.ad').forEach(ad => {
@@ -886,7 +889,7 @@ function generateAds(count) {
         }
     });
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < numberOfAds; i++) {
         const ad = document.createElement('div');
         ad.className = 'ad';
         // Generate random position within the viewport
@@ -906,7 +909,7 @@ function generateAds(count) {
         closeButton.textContent = 'X';
         closeButton.addEventListener('click', function() {
             ad.style.display = 'none';
-            generateAds(2); // Generate two new ads when this ad is closed
+            generateAds(); // Generate new ads when this ad is closed
         });
 
         // Append the close button to the ad
