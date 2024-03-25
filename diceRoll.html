@@ -198,6 +198,14 @@
 	    padding: 2px 5px;
 	    font-size: 12px;
 	}
+   	.shark {
+   		width: 150px; /* Adjusted size */
+        height: 150px; /* Adjusted size */
+        background-image: url('shark.png'); /* Replace 'shark.png' with the path to your shark image */
+        background-size: cover;
+        position: absolute;
+        transform-origin: center center; /* Ensure the rotation is around the center of the shark */
+    }
 	</style>
 </head>
 <body>
@@ -926,6 +934,98 @@ function generateAds() {
     }
 }
 
+function sharkInfestedHTML() {
+	for (let i = 0; i < 500; i++) {
+    	const sharkDiv = document.createElement('div');
+    	sharkDiv.className = 'shark';
+    // Set random starting position within the visible area
+        sharkDiv.style.left = `${Math.random() * (window.innerWidth - sharkDiv.offsetWidth)}px`;
+        sharkDiv.style.top = `${Math.random() * (window.innerHeight - sharkDiv.offsetHeight)}px`;
+        document.body.appendChild(sharkDiv);
+    }
+
+   	const sharks = document.querySelectorAll('.shark');
+
+    sharks.forEach(shark => {
+        pickNewTarget(shark);
+    });
+
+     let speed = 10; // Increased speed for faster movement
+     let rotationSpeed = 2; // Speed of rotation
+
+function moveShark(shark) {
+    const currentX = parseInt(shark.style.left) || 0;
+    const currentY = parseInt(shark.style.top) || 0;
+    const targetX = parseInt(shark.dataset.targetX) || 0;
+    const targetY = parseInt(shark.dataset.targetY) || 0;
+
+    // Calculate the distance to the target
+    const dx = targetX - currentX;
+    const dy = targetY - currentY;
+    const distanceToTarget = Math.sqrt(dx * dx + dy * dy);
+
+    // Calculate the angle to the target
+    const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+    // Gradually adjust the shark's direction towards the target angle
+    let currentDirection = parseInt(shark.dataset.direction) || 0;
+    const directionDifference = targetAngle - currentDirection;
+
+    // Adjust the turning degree to make the shark's movements smoother
+    const turningDegree = Math.min(Math.abs(directionDifference), rotationSpeed);
+    if (directionDifference > 0) {
+        currentDirection += turningDegree;
+    } else {
+        currentDirection -= turningDegree;
+    }
+
+    // Calculate the new position based on the adjusted direction
+    const newX = currentX + Math.cos(currentDirection * (Math.PI / 180)) * speed;
+    const newY = currentY + Math.sin(currentDirection * (Math.PI / 180)) * speed;
+
+    // Check if the new position is off-screen
+    if (newX < 0 || newX > window.innerWidth - shark.offsetWidth ||
+        newY < 0 || newY > window.innerHeight - shark.offsetHeight) {
+        // If the new position is off-screen, adjust the direction to move towards the center of the screen
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+        const angleToCenter = Math.atan2(centerY - currentY, centerX - currentX) * (180 / Math.PI);
+        currentDirection = angleToCenter;
+    }
+
+    // Apply the new position
+    shark.style.left = `${newX}px`;
+    shark.style.top = `${newY}px`;
+
+    // Rotate the shark to face the direction of movement
+    shark.style.transform = `rotate(${currentDirection}deg)`;
+
+    // Update the shark's direction in its dataset
+    shark.dataset.direction = currentDirection;
+
+    // If the shark has reached the target, pick a new target
+    if (distanceToTarget <= speed) {
+        pickNewTarget(shark);
+    }
+}
+		function pickNewTarget(shark) {
+		    // Calculate the maximum and minimum X and Y positions the shark can move to
+		    const maxX = window.innerWidth - shark.offsetWidth;
+		    const maxY = window.innerHeight - shark.offsetHeight;
+		    const minX = 0;
+		    const minY = 0;
+
+		    // Ensure the target position is within the visible area
+		    shark.dataset.targetX = Math.max(minX, Math.min(maxX, Math.random() * window.innerWidth));
+		    shark.dataset.targetY = Math.max(minY, Math.min(maxY, Math.random() * window.innerHeight));
+		}
+
+        // Move each shark every 10 milliseconds for faster movement
+        setInterval(() => {
+            sharks.forEach(moveShark);
+        }, 10);
+}
+
 function konamiCalc() {
 	codesArray = cheatCodes.split(' ');
     if (codesArray.includes("cheese")) {
@@ -941,6 +1041,9 @@ function konamiCalc() {
     }
     if (codesArray.includes("ads")) {
     	generateAds(numberOfAds);
+    }
+    if (codesArray.includes("blahaj")) {
+    	sharkInfestedHTML();
     }
 }
 </script>
