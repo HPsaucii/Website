@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e2e;
+            margin: 0;
+        }
+        #game-board {
+            position: relative;
+            border: 3px solid #cba6f7;
+        }
+        .snake-part, .food {
+            position: absolute;
+            background-color: #a6e3a1;
+        }
+        .food {
+            background-color: #f38ba8;
+        }
+        #pause-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-size: 2em;
+            text-align: center;
+            padding-top: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-board"></div>
+    <div id="pause-overlay">Paused</div>
+    <script>
+        const gameBoard = document.getElementById('game-board');
+        const pauseOverlay = document.getElementById('pause-overlay');
+        const gridSize = 15; // Grid size
+        const cellSize = 40; // Size of each cell in pixels
+        let direction = { x: 0, y: 1 };
+        let food = null;
+        let gameInterval = null;
+        let isPaused = false;
+        let inputQueue = [];
+
+        // Adjust the game board size based on the grid size and cell size
+        gameBoard.style.width = `${gridSize * cellSize}px`;
+        gameBoard.style.height = `${gridSize * cellSize}px`;
+
+    function getRandomStartPosition() {
+         return {
+             x: Math.floor(Math.random() * gridSize),
+                y: Math.floor(Math.random() * gridSize)
+            };
+        }
+
+    let snake = [getRandomStartPosition()];
+
+    function calculateDistance(x1, y1, x2, y2) {
+         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+      }
+
+      // Function to get the initial direction based on the position of the food
+      function getInitialDirection(snakeStart, foodPosition) {
+         const horizontalDistance = Math.abs(foodPosition.x - snakeStart.x);
+          const verticalDistance = Math.abs(foodPosition.y - snakeStart.y);
+
+          if (horizontalDistance > verticalDistance) {
+             return foodPosition.x > snakeStart.x ? { x: 1, y: 0 } : { x: -1, y: 0 }; // Right or left
+          } else {
+             return foodPosition.y > snakeStart.y ? { x: 0, y: 1 } : { x: 0, y: -1 }; // Up or down
+          }
+      }
+  
+
+        function createFood() {
+            let foodPosition;
+            do {
+                foodPosition = {
+                    x: Math.floor(Math.random() * gridSize),
+                    y: Math.floor(Math.random() * gridSize)
+                };
+            } while (isPositionInSnake(foodPosition));
+        
+            food = foodPosition;
+            const foodElement = document.createElement('div');
+            foodElement.className = 'food';
+            foodElement.style.width = `${cellSize}px`;
+            foodElement.style.height = `${cellSize}px`;
+            foodElement.style.top = `${food.y * cellSize}px`;
+            foodElement.style.left = `${food.x * cellSize}px`;
+            gameBoard.appendChild(foodElement);
+            food.element = foodElement;
+        }
+        
+        function isPositionInSnake(position) {
+            return snake.some(part => part.x === position.x && part.y === position.y);
+        }
+
+        function moveSnake() {
+            if (isPaused) return;
+
+            if (inputQueue.length > 0) {
+                direction = inputQueue[inputQueue.length - 1];   
+                inputQueue = [];
+            }
+
+            const head = { ...snake[0] }; // Copy the head
+            head.x += direction.x;
+            head.y += direction.y;
+
+            snake.unshift(head);
+
+            if (food && head.x === food.x && head.y === food.y) {
+                gameBoard.removeChild(food.element);
+                createFood();
+            } else {
+                if (snake.length > 1) {
+                    const tail = snake.pop();
+                    if (tail.element) {
+                        gameBoard.removeChild(tail.element);
+                    }
+                }
+            }
+
+            const snakeHeadElement = document.createElement('div');
+            snakeHeadElement.className = 'snake-part';
+            snakeHeadElement.style.width = `${cellSize}px`;
+            snakeHeadElement.style.height = `${cellSize}px`;
+            snakeHeadElement.style.top = `${head.y * cellSize}px`;
+            snakeHeadElement.style.left = `${head.x * cellSize}px`;
+            gameBoard.appendChild(snakeHeadElement);
+            snake[0].element = snakeHeadElement;
+
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver();
+                    return;
+                }
+            }
+            if (head.x < 0 || head.y < 0 || head.x >= gridSize || head.y >= gridSize) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            clearInterval(gameInterval);
+            alert('Game Over! Click OK to restart.');
+            while (gameBoard.firstChild) {
+                gameBoard.removeChild(gameBoard.firstChild);
+            }
+            snake = [{ x: Math.floor(gridSize / 2), y: Math.floor(gridSize / 2) }];
+            startGame();
+        }
+
+        function drawGrid() {
+            const boardSize = gridSize * cellSize; // Total size of the game board
+        
+            // Create a container for the grid lines
+            const gridContainer = document.createElement('div');
+            gridContainer.style.position = 'absolute';
+            gridContainer.style.width = `${boardSize}px`;
+            gridContainer.style.height = `${boardSize}px`;
+            gridContainer.style.top = '0';
+            gridContainer.style.left = '0';
+            gridContainer.style.pointerEvents = 'none'; // Ensure the grid doesn't interfere with game elements
+        
+            // Draw horizontal lines
+            for (let i = 0; i <= gridSize; i++) {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+                line.style.width = `${boardSize}px`;
+                line.style.height = '1px';
+                line.style.background = '#ccc';
+                line.style.top = `${i * cellSize}px`;
+                gridContainer.appendChild(line);
+            }
+        
+            // Draw vertical lines
+            for (let i = 0; i <= gridSize; i++) {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+                line.style.width = '1px';
+                line.style.height = `${boardSize}px`;
+                line.style.background = '#ccc';
+                line.style.left = `${i * cellSize}px`;
+                gridContainer.appendChild(line);
+            }
+        
+            // Append the grid container to the game board
+            gameBoard.appendChild(gridContainer);
+        }
+
+        function startGame() {
+            drawGrid();
+            createFood();
+            direction = getInitialDirection(snake[0], food);
+            gameInterval = setInterval(moveSnake, 200);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            let newDirection = null;
+        
+            if (e.key === 'ArrowUp' || e.key === 'w') newDirection = { x: 0, y: -1 };
+            else if (e.key === 'ArrowDown' || e.key === 's') newDirection = { x: 0, y: 1 };
+            else if (e.key === 'ArrowLeft' || e.key === 'a') newDirection = { x: -1, y: 0 };
+            else if (e.key === 'ArrowRight' || e.key === 'd') newDirection = { x: 1, y: 0 };
+            else if (e.key === 'p' || e.key === 'P') {
+                isPaused = !isPaused;
+                pauseOverlay.style.display = isPaused ? 'block' : 'none';
+                if (isPaused) {
+                    clearInterval(gameInterval);
+                } else {
+                    gameInterval = setInterval(moveSnake, 200);
+                }
+                return; // Return early if the key is for pausing
+            }
+        
+            // Check if the new direction is opposite to the current direction
+            if (newDirection && (newDirection.x === -direction.x || newDirection.y === -direction.y)) {
+                // Ignore the input if it's opposite to the current direction
+                return;
+            }
+        
+            // Add the new direction to the queue
+            inputQueue.push(newDirection);
+        });
+
+        startGame();
+    </script>
+</body>
+</html>
