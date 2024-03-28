@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minesweeper</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e2e;
+            margin: 0;
+            -webkit-touch-callout: none; /* iOS Safari */
+		   	-webkit-user-select: none; /* Safari */
+		   	-khtml-user-select: none; /* Konqueror HTML */
+		   	-moz-user-select: none; /* Firefox */
+		   	-ms-user-select: none; /* Internet Explorer/Edge */
+		   	user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Edge */
+        }
+        #game-board {
+            position: relative;
+            border: 3px solid #cba6f7;
+        }
+        .cell {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #313244;
+            border: 0px solid #181825;
+            text-align: center;
+            line-height: 40px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .cell.flagged {
+            background: #f38ba8;
+        }
+        .cell.revealed {
+            background: #1e1e2e;
+        }
+        .game-over {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: 24px;
+			color: #fff;
+			text-align: center;
+        }
+        .catButton {
+       	    background-color: #181825; /* Background color */
+       	    color: #cdd6f4; /* Foreground color */
+       	    border: none;
+       	    padding: 10px 20px;
+       	    text-align: center;
+       	    text-decoration: none;
+       	    display: inline-block;
+       	    font-size: 16px;
+       	    margin: 4px 2px;
+       	    cursor: pointer;
+       	    border-radius: 4px;
+       	}
+    </style>
+</head>
+<body>
+    <div id="game-board"></div>
+    <script>
+        const gameBoard = document.getElementById('game-board');
+        const gridSize = 15; // Grid size
+        const cellSize = 40; // Size of each cell in pixels
+        const mineCount = 20; // Number of mines
+
+        // Adjust the game board size based on the grid size and cell size
+        gameBoard.style.width = `${gridSize * cellSize}px`;
+        gameBoard.style.height = `${gridSize * cellSize}px`;
+        // Initialize game state
+        const board = Array.from({ length: gridSize }, () => Array(gridSize).fill(0));
+        const flags = Array.from({ length: gridSize }, () => Array(gridSize).fill(false));
+
+        // Place mines
+        for (let i = 0; i < mineCount; i++) {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * gridSize);
+                y = Math.floor(Math.random() * gridSize);
+            } while (board[x][y] === -1);
+            board[x][y] = -1;
+        }
+
+        // Calculate adjacent mines
+        for (let x = 0; x < gridSize; x++) {
+            for (let y = 0; y < gridSize; y++) {
+                if (board[x][y] !== -1) {
+                    let count = 0;
+                    for (let dx = -1; dx <= 1; dx++) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            const nx = x + dx;
+                            const ny = y + dy;
+                            if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && board[nx][ny] === -1) {
+                                count++;
+                            }
+                        }
+                    }
+                    board[x][y] = count;
+                }
+            }
+        }
+
+        // Draw cells
+        function drawCells() {
+            for (let x = 0; x < gridSize; x++) {
+                for (let y = 0; y < gridSize; y++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.style.left = `${x * cellSize}px`;
+                    cell.style.top = `${y * cellSize}px`;
+                    cell.addEventListener('click', () => {
+                        if (!flags[x][y]) {
+                            cell.classList.add('revealed');
+                            cell.textContent = board[x][y] === -1 ? 'X' : board[x][y];
+                            // Set font color based on the number
+                            if (board[x][y] === 0) {
+                                cell.style.color = '#1e1e2e';
+                            } else if (board[x][y] === 1) {
+                               	cell.style.color = '#89b4fa';
+	                        } else if (board[x][y] === 2) {
+                              	cell.style.color = '#a6e3a1';
+  	                        } else if (board[x][y] === 3) {
+                              	cell.style.color = '#f9e2af';
+  	                        } else if (board[x][y] === 4) {
+                              	cell.style.color = '#fab387';
+  	                        } else if (board[x][y] === 5) {
+                              	cell.style.color = '#f38ba8';
+  	                        } else {
+                              	cell.style.color = '#cba6f7';
+  	                        }
+  	                        if (board[x][y] === -1) {
+                                gameOver(); // Call game over function if a mine is clicked
+                            }
+                        }
+                    });
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        flags[x][y] = !flags[x][y];
+                        cell.classList.toggle('flagged');
+                    });
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+        drawCells();
+
+        // Game over function
+        function gameOver() {
+            const gameOverContainer = document.createElement('div');
+            gameOverContainer.classList.add('game-over');
+            gameOverContainer.style.position = 'absolute';
+            gameOverContainer.style.top = '50%';
+            gameOverContainer.style.left = '50%';
+            gameOverContainer.style.transform = 'translate(-50%, -50%)';
+            gameOverContainer.style.textAlign = 'center';
+            gameOverContainer.style.color = '#fff';
+            gameOverContainer.style.zIndex = '10'; // Ensure game over elements are above the game board
+        
+            // Game Over text
+            const gameOverText = document.createElement('div');
+            gameOverText.textContent = 'Game Over!';
+            gameOverText.style.fontSize = '24px';
+            gameOverContainer.appendChild(gameOverText);
+        
+            // Continue button
+            const continueButton = document.createElement('button');
+			continueButton.classList.add('catButton')
+            continueButton.textContent = 'Continue';
+            continueButton.style.marginTop = '10px'; // Add some space between the text and the button
+            continueButton.style.pointerEvents = 'auto'; // Enable pointer events for the button
+            continueButton.addEventListener('click', () => {
+                location.reload(); // Example: Reload the page to restart the game
+            });
+            gameOverContainer.appendChild(continueButton);
+            document.body.appendChild(gameOverContainer);
+            gameBoard.style.pointerEvents = 'none';
+        }
+
+   		function drawGrid() {
+            const boardSize = gridSize * cellSize; // Total size of the game board
+        
+            // Create a container for the grid lines
+            const gridContainer = document.createElement('div');
+            gridContainer.style.position = 'absolute';
+            gridContainer.style.width = `${boardSize}px`;
+            gridContainer.style.height = `${boardSize}px`;
+            gridContainer.style.top = '0';
+            gridContainer.style.left = '0';
+            gridContainer.style.pointerEvents = 'none'; // Ensure the grid doesn't interfere with game elements
+        
+            // Draw horizontal lines
+            for (let i = 0; i <= gridSize; i++) {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+                line.style.width = `${boardSize}px`;
+                line.style.height = '1px';
+                line.style.background = '#6c7086';
+                line.style.top = `${i * cellSize}px`;
+                gridContainer.appendChild(line);
+            }
+        
+            // Draw vertical lines
+            for (let i = 0; i <= gridSize; i++) {
+                const line = document.createElement('div');
+                line.style.position = 'absolute';
+                line.style.width = '1px';
+                line.style.height = `${boardSize}px`;
+                line.style.background = '#6c7086';
+                line.style.left = `${i * cellSize}px`;
+                gridContainer.appendChild(line);
+            }
+        
+            // Append the grid container to the game board
+            gameBoard.appendChild(gridContainer);
+        }
+		drawGrid();
+		
+    </script>
+</body>
+</html>
