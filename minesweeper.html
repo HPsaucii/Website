@@ -108,7 +108,6 @@
             }
         }
 
-        // Draw cells
         function drawCells() {
             for (let x = 0; x < gridSize; x++) {
                 for (let y = 0; y < gridSize; y++) {
@@ -116,28 +115,34 @@
                     cell.classList.add('cell');
                     cell.style.left = `${x * cellSize}px`;
                     cell.style.top = `${y * cellSize}px`;
+                    cell.setAttribute('data-x', x); // Add data attribute for x coordinate
+                    cell.setAttribute('data-y', y); // Add data attribute for y coordinate
                     cell.addEventListener('click', () => {
                         if (!flags[x][y]) {
-                            cell.classList.add('revealed');
-                            cell.textContent = board[x][y] === -1 ? 'X' : board[x][y];
-                            // Set font color based on the number
                             if (board[x][y] === 0) {
-                                cell.style.color = '#1e1e2e';
-                            } else if (board[x][y] === 1) {
-                               	cell.style.color = '#89b4fa';
-	                        } else if (board[x][y] === 2) {
-                              	cell.style.color = '#a6e3a1';
-  	                        } else if (board[x][y] === 3) {
-                              	cell.style.color = '#f9e2af';
-  	                        } else if (board[x][y] === 4) {
-                              	cell.style.color = '#fab387';
-  	                        } else if (board[x][y] === 5) {
-                              	cell.style.color = '#f38ba8';
-  	                        } else {
-                              	cell.style.color = '#cba6f7';
-  	                        }
-  	                        if (board[x][y] === -1) {
-                                gameOver(); // Call game over function if a mine is clicked
+                                revealBlankArea(x, y); // Call the function to reveal blank area
+                            } else {
+                                cell.classList.add('revealed');
+                                cell.textContent = board[x][y] === -1 ? 'X' : board[x][y];
+                                // Set font color based on the number
+                                if (board[x][y] === 0) {
+                                    cell.style.color = '#1e1e2e';
+                                } else if (board[x][y] === 1) {
+                                    cell.style.color = '#89b4fa';
+                                } else if (board[x][y] === 2) {
+                                    cell.style.color = '#a6e3a1';
+                                } else if (board[x][y] === 3) {
+                                    cell.style.color = '#f9e2af';
+                                } else if (board[x][y] === 4) {
+                                    cell.style.color = '#fab387';
+                                } else if (board[x][y] === 5) {
+                                    cell.style.color = '#f38ba8';
+                                } else {
+                                    cell.style.color = '#cba6f7';
+                                }
+                                if (board[x][y] === -1) {
+                                    gameOver(); // Call game over function if a mine is clicked
+                                }
                             }
                         }
                     });
@@ -151,7 +156,65 @@
             }
         }
         drawCells();
+        
+        // Function to check if a tile is adjacent to any mines
+        function isAdjacentToMine(x, y) {
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && board[nx][ny] === -1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Updated function to reveal all connected blank cells that are not adjacent to any mines
+        function revealBlankArea(x, y) {
+            // Check if the cell is out of bounds, not a blank cell, already revealed, or already flagged
+            if (x < 0 || x >= gridSize || y < 0 || y >= gridSize || board[x][y] !== 0 || flags[x][y]) {
+                return; // Exit if any of these conditions are met
+            }
+        
+            // Check if the cell is adjacent to any mines
+            if (isAdjacentToMine(x, y)) {
+                return; // Exit if the cell is adjacent to any mines
+            }
+        
+            // Mark the cell as revealed to avoid processing it again
+            flags[x][y] = true;
+        
+            const cell = document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+            cell.classList.add('revealed');
+            cell.textContent = board[x][y];
+            cell.style.color = '#1e1e2e'; // Set color for blank cells
+        
+            // Recursively reveal all adjacent blank cells that are not adjacent to any mines
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if (dx !== 0 || dy !== 0) { // Skip the current cell
+                        revealBlankArea(x + dx, y + dy);
+                    }
+                }
+            }
+        }
 
+		function checkWinCondition() {
+		    for (let x = 0; x < gridSize; x++) {
+		        for (let y = 0; y < gridSize; y++) {
+		            // Check if the cell is not a mine and not flagged
+		            if (board[x][y] !== -1 && !flags[x][y]) {
+		                // If any non-mine, non-flagged cell is found, return false
+		                return false;
+		            }
+		        }
+		    }
+		    // If no non-mine, non-flagged cells are found, return true (player has won)
+		    return true;
+		}
+        
         // Game over function
         function gameOver() {
             const gameOverContainer = document.createElement('div');
@@ -183,6 +246,31 @@
             document.body.appendChild(gameOverContainer);
             gameBoard.style.pointerEvents = 'none';
         }
+
+		// Function to handle the win condition
+		function winGame() {
+		    const winMessage = document.createElement('div');
+		    winMessage.textContent = 'You Won!';
+		    winMessage.style.position = 'absolute';
+		    winMessage.style.top = '50%';
+		    winMessage.style.left = '50%';
+		    winMessage.style.transform = 'translate(-50%, -50%)';
+		    winMessage.style.fontSize = '32px';
+		    winMessage.style.color = '#fff';
+		    winMessage.style.textAlign = 'center';
+		
+		    const continueButton = document.createElement('button');
+			continueButton.classList.add('catButton')
+            continueButton.textContent = 'Continue';
+            continueButton.style.marginTop = '10px'; // Add some space between the text and the button
+            continueButton.style.pointerEvents = 'auto'; // Enable pointer events for the button
+            continueButton.addEventListener('click', () => {
+                location.reload(); // Example: Reload the page to restart the game
+            });
+            winMessage.appendChild(continueButton);
+            document.body.appendChild(winMessage);
+		    gameBoard.style.pointerEvents = 'none';
+		}
 
    		function drawGrid() {
             const boardSize = gridSize * cellSize; // Total size of the game board
