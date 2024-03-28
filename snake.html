@@ -225,6 +225,9 @@
                 }
                 return; // Return early if the key is for pausing
             }
+            else {
+            	newDirection = direction
+            }
         
             // Check if the new direction is opposite to the current direction
             if (newDirection && (newDirection.x === -direction.x || newDirection.y === -direction.y)) {
