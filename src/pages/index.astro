@@ -1,0 +1,169 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Theming from "../components/theming.svelte";
+---
+
+<Layout title="Welcome to Astro.">
+	<header>
+		 <h1>HPsaucii's site :3</h1>
+		 <h2>Yes thats right, my own personal website!</h2>
+	 </header>
+	 <main>
+		 <p>What can you do here? Well, not a whole lot right now, but im hoping that will change soon!</p>
+		 <p><a href="https://codeberg.org/hpsaucii/pages">You can view this web pages source code here</a></p>
+	 </main>
+	 <footer>
+		 <div id="webring"><a href="https://ctp-webr.ing/hpsaucii/previous">&larr;</a><a href="https://ctp-webr.ing/">Catppuccin webring</a><a href="https://ctp-webr.ing/hpsaucii/next">&rarr;</a></div>
+		 <Theming />
+	 </footer>
+</Layout>
+
+<style>
+	body {
+		margin: 0;
+		color: var(--text);
+		font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+		background-color: var(--base);
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+		min-height: 100vh;
+		line-height: 1.1;
+		text-align: center;
+		justify-content: center;
+		align-items: center; 
+		margin-left: 0;
+	}
+
+	h1 {
+		font-size: 4.5rem;
+		font-weight: 700;
+		margin-bottom: -5px;
+	}
+
+	h2 {
+		font-size: 2.4rem;
+		font-weight: 600;
+	}
+
+	.social-icons {
+		font-size: 3rem;
+	}
+
+	p {
+		color: var(--subtext0);
+		font-size: 1.6rem;
+		font-weight: 400;
+	}
+
+	.noselect {
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+
+	.icon-button {
+	  background: none;
+	  border: none;
+	  padding: 0;
+	  cursor: pointer;
+	  display: inline-flex;
+	  align-items: center;
+	  justify-content: center;
+	  width: 48px;
+	  height: 48px;
+	  margin: 0 8px;
+	  position: relative;
+	}
+
+	svg {
+	  width: 100%;
+	  height: 100%;
+		fill: var(--text);
+	}
+
+	.icon-button:focus {
+	  outline: none;
+	}
+
+	.icon-button .tooltiptext {
+	  font-size: 1rem;
+	  visibility: hidden;
+	  padding: 1rem 1rem;
+	  background-color: var(--mantle);
+	  color: var(--text);
+	  text-align: center;
+	  border-radius: 0.1em;
+	  white-space: nowrap;
+	  position: absolute;
+	  z-index: 1;
+	  bottom: 100%;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  margin-bottom: 5px;
+	  transition-property: visibility;
+	  transition-delay: 0s;
+	}
+
+	.icon-button .tooltiptext::after {
+	  content: '';
+	  position: absolute;
+	  top: 100%;
+	  left: 50%;
+	  transform: translateX(-50%);
+	  border-width: 5px;
+	  border-style: solid;
+	  border-color: var(--mantle) transparent transparent transparent;
+	}
+
+	.icon-button:hover .tooltiptext {
+	  visibility: visible;
+	  transition-delay: 0.3s;
+	}
+		
+	a {
+		color: var(--accent);
+	}
+
+	a:link, a:visited {
+		text-decoration: none;
+	}
+
+	a:hover, a:active {
+		text-decoration: underline;
+	}
+
+	label {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 10px;
+		width: 100%;
+	}
+
+	label select {
+	    margin-left: 5px;
+			min-width: 25px;
+			width: auto;
+	}
+
+	select {
+	  color: var(--text);
+	  background-color: var(--mantle);
+	  border: var(--crust);
+	  padding: 0 1m 0 0;
+	  margin: 0;
+	  width: 10%;
+	  font-family: inherit;
+	  font-size: inherit;
+	  cursor: inherit;
+	  line-height: inherit;
+	}
+
+	#webring {
+		margin: 10px;
+	}
+</style>
