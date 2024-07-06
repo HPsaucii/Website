@@ -1,20 +1,20 @@
 <script>
-	let selectedTheme = "mocha";
-	let selectedAccent = "mauve";
+    let selectedTheme = "mocha";
+    let selectedAccent = "mauve";
 
-	let themes = [
-		{ id: 1, value: "latte", text: "Latte" },
-		{ id: 2, value: "frappe", text: "Frappe" },
-		{ id: 3, value: "macchiato", text: "Macchiato" },
-		{ id: 4, value: "mocha", text: "Mocha" }
-	];
+    let themes = [
+        { id: 1, value: "latte", text: "Latte" },
+        { id: 2, value: "frappe", text: "Frappe" },
+        { id: 3, value: "macchiato", text: "Macchiato" },
+        { id: 4, value: "mocha", text: "Mocha" }
+    ];
 
-	function handleThemeChange() {
-		console.log(`Changing theme to: ${selectedTheme}`);
+    function handleThemeChange() {
+        console.log(`Changing theme to: ${selectedTheme}`);
     document.documentElement.setAttribute('theme', selectedTheme);
   };
 
-	function handleAccentChange() {
+    function handleAccentChange() {
     document.documentElement.style.setProperty('--accent', `var(--${selectedAccent})`);
   };
 
@@ -22,12 +22,12 @@
 
 <label>
   Flavour:
-  <select bind:value={selectedTheme} on:change={() => (console.log(`Changing theme to: ${selectedTheme}`))} aria-label="Select Theme">
-  	{#each themes as theme}
-			<option value={theme.value}>
-				{theme.text}
-			</option>
-		{/each}
+  <select bind:value={selectedTheme} on:change={handleThemeChange} aria-label="Select Theme">
+      {#each themes as theme}
+            <option value={theme.value}>
+                {theme.text}
+            </option>
+        {/each}
   </select>
 </label>
 <label>
