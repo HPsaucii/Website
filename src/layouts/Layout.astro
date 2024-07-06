@@ -7,12 +7,12 @@ const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" theme="mocha" style="--accent: var(--mauve)">
+<html lang="en" data-theme="mocha" style="--accent: var(--mauve)">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
+		<meta name="description" content="HPsaucii's offical website" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.webp" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
@@ -27,7 +27,7 @@ const { title } = Astro.props;
 	  box-sizing: border-box;
 	}
 
-	:root[theme=latte] {
+	:root[data-theme=latte] {
 		--rosewater: #dc8a78;
 		--flamingo: #dd7878;
 		--pink: #ea76cb;
@@ -56,7 +56,7 @@ const { title } = Astro.props;
 		--crust: #dce0e8;
 	}
 
-	:root[theme=frappe] {
+	:root[data-theme=frappe] {
 		--rosewater: #f2d5cf;
 		--flamingo: #eebebe;
 		--pink: #f4b8e4;
@@ -85,7 +85,7 @@ const { title } = Astro.props;
 		--crust: #232634;
 	}
 
-	:root[theme=macchiato] {
+	:root[data-theme=macchiato] {
 		--rosewater: #f4dbd6;
 		--flamingo: #f0c6c6;
 		--pink: #f5bde6;
@@ -114,7 +114,7 @@ const { title } = Astro.props;
 		--crust: #181926;
 	}
 
-	:root[theme=mocha] {
+	:root[data-theme=mocha] {
 		--rosewater: #f5e0dc;
 		--flamingo: #f2cdcd;
 		--pink: #f5c2e7;
