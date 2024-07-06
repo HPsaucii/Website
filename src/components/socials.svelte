@@ -35,14 +35,10 @@
 		<span class="tooltiptext">{tooltipText.misskey}</span>
 		<Misskey />
 	</a>
-	<button on:click={() => copySocialToClipboard("hpsaucii")} class="icon-button" aria-label="Discord">
+	<a href=" https://discordapp.com/users/578110568209055756" class="icon-button" aria-label="Discord">
 		<span class="tooltiptext">{tooltipText.discord}</span>
 		<Discord />
-	</button>
-	<button on:click={() => copySocialToClipboard("me [AT] hpsaucii [DOT] dev")} class="icon-button" aria-label="Email">
-		<span class="tooltiptext">{tooltipText.email}</span>
-		<Email />
-	</button>
+	</a>
 </div>
 
 <style>
