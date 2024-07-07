@@ -1,49 +1,62 @@
 <script>
-    let selectedTheme = "mocha";
-    let selectedAccent = "mauve";
+  let selectedTheme;
+  let selectedAccent;
 
-    let themes = [
-        { value: "latte", text: "Latte" },
-        { value: "frappe", text: "Frappe" },
-        { value: "macchiato", text: "Macchiato" },
-        { value: "mocha", text: "Mocha" }
-    ];
+	let themes = [
+		"Latte",
+		"Frappe",
+		"Macchiato",
+		"Mocha",
+  ];
 
-    function handleThemeChange() {
-    document.documentElement.setAttribute('data-theme', selectedTheme);
+	let accents = [
+		"Rosewater",
+		"Flamingo",
+		"Pink",
+		"Mauve",
+		"Red",
+		"Maroon",
+		"Peach",
+		"Yellow",
+		"Green",
+		"Teal",
+		"Sky",
+		"Sapphire",
+		"Blue",
+		"Lavender"
+	];
+
+	function handleThemeChange() {
+    document.documentElement.setAttribute('data-theme', selectedTheme.toLowerCase());
   };
 
-    function handleAccentChange() {
-    document.documentElement.style.setProperty('--accent', `var(--${selectedAccent})`);
+  function handleAccentChange() {
+    document.documentElement.style.setProperty('--accent', `var(--${selectedAccent.toLowerCase()})`);
   };
-
 </script>
 
-<label>
+<label class="jsonly">
   Flavour:
   <select bind:value={selectedTheme} on:change={handleThemeChange} aria-label="Select Theme">
-    {#each themes as theme}
-			<option value={theme.value}>{theme.text}</option>
+		{#each themes as theme}
+			{#if theme == "Mocha"}
+				<option value={theme} selected>{theme}</option>
+			{:else}
+			<option value={theme}>{theme}</option>
+			{/if}
 		{/each}
   </select>
 </label>
-<label>
+<label class="jsonly">
   Accent Color:
   <select bind:value={selectedAccent} on:change={handleAccentChange} aria-label="Select Accent Color">
-    <option value="rosewater">Rosewater</option>
-    <option value="flamingo">Flamingo</option>
-    <option value="pink">Pink</option>
-    <option value="mauve">Mauve</option>
-    <option value="red">Red</option>
-    <option value="maroon">Maroon</option>
-    <option value="peach">Peach</option>
-    <option value="yellow">Yellow</option>
-    <option value="green">Green</option>
-    <option value="teal">Teal</option>
-    <option value="sky">Sky</option>
-    <option value="sapphire">Sapphire</option>
-    <option value="blue">Blue</option>
-    <option value="lavender">Lavender</option>
+  	{#each accents as accent}
+  		{#if accent == "Mauve"}
+				<option value={accent} selected>{accent}</option>
+			{:else}
+			<option value={accent}>{accent}</option>
+			{/if}
+		{/each}
   </select>
 </label>
 

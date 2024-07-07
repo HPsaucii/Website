@@ -1,43 +1,35 @@
-<script>
-	import Codeberg from "./codeberg.svelte";
-	import Github from "./github.svelte";
-	import Misskey from "./misskey.svelte";
-	import Discord from "./discord.svelte";
-	import Email from "./email.svelte";
+---
+import { Icon } from 'astro-icon/components';
 
-	const tooltipText = {
-		codeberg: "Visit Site",
-		github: "Visit Site",
-		misskey: "Visit Site",
-		discord: "Copy To Clipboard",
-		email: "Copy To Clipboard"
-	};
-
-  function visitSite(content) {
-    window.open(content);
-  };
-
-  function copySocialToClipboard(content) {
-    navigator.clipboard.writeText(content);
-  };
-</script>
+const tooltipText = {
+  codeberg: "Visit Site",
+  github: "Visit Site",
+  misskey: "Visit Site",
+  discord: "Copy To Clipboard",
+  email: "Copy To Clipboard"
+};
+---
 
 <div class="noselect social-icons">
 	<a href="https://codeberg.org/hpsaucii" target="_blank" class="icon-button" aria-label="Codeberg">
-		<Codeberg />
+		<Icon name="simple-icons:codeberg" />
 		<span class="tooltiptext">{tooltipText.codeberg}</span>
 	</a>
 	<a href="https://github.com/hpsaucii" target="_blank" class="icon-button" aria-label="Github">
+		<Icon name="simple-icons:github" />
 		<span class="tooltiptext">{tooltipText.github}</span>
-		<Github />
 	</a>
 	<a href="https://transfem.social/@hpsaucii" target="_blank" class="icon-button" aria-label="transfem.social">
+		<Icon name="simple-icons:misskey" />
 		<span class="tooltiptext">{tooltipText.misskey}</span>
-		<Misskey />
 	</a>
-	<a href=" https://discordapp.com/users/578110568209055756" class="icon-button" aria-label="Discord">
+	<a href="https://discordapp.com/users/578110568209055756" class="icon-button" aria-label="Discord">
+		<Icon name="simple-icons:discord" />
 		<span class="tooltiptext">{tooltipText.discord}</span>
-		<Discord />
+	</a>
+	<a href="mailto:me@hpsaucii.dev" class="icon-button" aria-label="Discord">
+		<Icon name="tabler:mail-filled" />
+		<span class="tooltiptext">{tooltipText.email}</span>
 	</a>
 </div>
 
@@ -97,5 +89,9 @@
 	.icon-button:hover .tooltiptext {
 	  visibility: visible;
 	  transition-delay: 0.3s;
+	}
+
+	[data-icon] {
+	    color: var(--text);
 	}
 </style>
